@@ -305,6 +305,36 @@ class GoogleDriveRepository {
         }
     }
 
+    suspend fun makeFilePublicAndDirectUrl(
+        accessToken: String,
+        fileId: String
+    ): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val payload = JSONObject().apply {
+                put("role", "reader")
+                put("type", "anyone")
+            }
+            val url = "https://www.googleapis.com/drive/v3/files/$fileId/permissions?supportsAllDrives=true"
+            val req = Request.Builder()
+                .url(url)
+                .addHeader("Authorization", "Bearer $accessToken")
+                .post(payload.toString().toRequestBody("application/json; charset=utf-8".toMediaType()))
+                .build()
+
+            client.newCall(req).execute().use { resp ->
+                if (!resp.isSuccessful) {
+                    val body = resp.body?.string().orEmpty()
+                    return@withContext Result.failure(
+                        IllegalStateException("Permission update failed (${resp.code}): ${extractDriveError(body)}")
+                    )
+                }
+                Result.success("https://drive.google.com/uc?export=download&id=$fileId")
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
     fun getInstalledApkFile(context: Context): File? {
         return try {
             val sourcePath = context.applicationInfo?.sourceDir ?: return null

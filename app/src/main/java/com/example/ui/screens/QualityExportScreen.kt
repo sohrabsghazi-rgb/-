@@ -30,6 +30,7 @@ import androidx.compose.material.icons.rounded.Description
 import androidx.compose.material.icons.rounded.Download
 import androidx.compose.material.icons.rounded.ErrorOutline
 import androidx.compose.material.icons.rounded.GridView
+import androidx.compose.material.icons.rounded.Language
 import androidx.compose.material.icons.automirrored.rounded.OpenInNew
 import androidx.compose.material.icons.rounded.Refresh
 import androidx.compose.material.icons.rounded.Share
@@ -83,6 +84,7 @@ fun QualityExportScreen(
     val context = LocalContext.current
     val activity = context as? Activity
     val apkDeliveryStatus by viewModel.apkDeliveryStatus.collectAsStateWithLifecycle()
+    val apkHttpInfo by viewModel.apkHttpInfo.collectAsStateWithLifecycle()
 
     val driveAuthLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
@@ -99,6 +101,94 @@ fun QualityExportScreen(
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(14.dp)
     ) {
+        // 0. Standalone 100% Offline WebApp Studio (PC & Mobile Browser)
+        Card(
+            colors = CardDefaults.cardColors(containerColor = activeTheme.panelSurface),
+            shape = RoundedCornerShape(18.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .border(1.dp, EmeraldIon.copy(alpha = 0.65f), RoundedCornerShape(18.dp))
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(10.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Rounded.Language,
+                        contentDescription = "Offline WebApp Studio",
+                        tint = EmeraldIon
+                    )
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = "OFFLINE WEBAPP STUDIO (PC & MOBILE)",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = PlatinumText
+                        )
+                        Text(
+                            text = "نسخه کامل وب‌اپ آفلاین بدون نیاز به اینترنت (قابل اجرا در مرورگر گوشی و کامپیوتر با تمام ۸۴ افکت، جاگذاری عکس و خروجی FullHD/16K ZIP)",
+                            style = MaterialTheme.typography.bodyMedium.copy(fontFamily = VazirmatnFontFamily),
+                            color = MutedSlate
+                        )
+                    }
+                }
+                Button(
+                    onClick = {
+                        viewModel.launchOfflineWebAppInBrowser(context) { url ->
+                            openUrlInBrowser(context, url)
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = EmeraldIon,
+                        contentColor = activeTheme.backgroundVoid
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp)
+                        .testTag("open_offline_webapp_browser_button")
+                ) {
+                    Icon(Icons.Rounded.Language, contentDescription = "Open Offline WebApp in Browser")
+                    Text(
+                        text = "  Open Offline WebApp in Browser",
+                        style = MaterialTheme.typography.labelLarge,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    OutlinedButton(
+                        onClick = { viewModel.saveOfflineWebAppToDownloads(context) },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                            .testTag("save_offline_webapp_button")
+                    ) {
+                        Icon(Icons.Rounded.SaveAlt, contentDescription = "Save Offline WebApp HTML", modifier = Modifier.size(18.dp))
+                        Text(" Save WebApp (.html)", style = MaterialTheme.typography.labelLarge)
+                    }
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.shareOfflineWebAppDirectly(context) { uri ->
+                                shareFileUri(context, uri, "text/html", "Share Offline NeonVFX WebApp (.html)")
+                            }
+                        },
+                        modifier = Modifier
+                            .weight(1f)
+                            .height(48.dp)
+                            .testTag("share_offline_webapp_button")
+                    ) {
+                        Icon(Icons.Rounded.Share, contentDescription = "Share Offline WebApp", modifier = Modifier.size(18.dp))
+                        Text(" Share WebApp", style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+            }
+        }
+
         // 1. Primary Local Gallery & Device Folder Delivery Builder (FullHD / 4K / 16K Master Tiled)
         Card(
             colors = CardDefaults.cardColors(containerColor = activeTheme.panelSurface),
@@ -329,6 +419,91 @@ fun QualityExportScreen(
                     ) {
                         Icon(Icons.Rounded.Share, contentDescription = "Share APK Directly", modifier = Modifier.size(18.dp))
                         Text(" Share APK", style = MaterialTheme.typography.labelLarge)
+                    }
+                }
+                OutlinedButton(
+                    onClick = { viewModel.toggleLocalApkHttpServer(context) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(48.dp)
+                        .testTag("toggle_local_apk_http_button")
+                ) {
+                    Icon(Icons.AutoMirrored.Rounded.OpenInNew, contentDescription = "Toggle Local APK HTTP Download Link", modifier = Modifier.size(16.dp))
+                    Text(
+                        text = if (apkHttpInfo == null) "  Start Direct HTTP APK Link (Wi-Fi / Browser)" else "  Stop Local HTTP APK Server",
+                        style = MaterialTheme.typography.labelLarge
+                    )
+                }
+                apkHttpInfo?.let { http ->
+                    Surface(
+                        color = activeTheme.deckSurface,
+                        shape = RoundedCornerShape(12.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .border(1.dp, activeTheme.primaryColor.copy(alpha = 0.45f), RoundedCornerShape(12.dp))
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(12.dp),
+                            verticalArrangement = Arrangement.spacedBy(6.dp)
+                        ) {
+                            Text(
+                                text = "WebApp Browser URL: ${http.webAppLocalUrl}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = EmeraldIon
+                            )
+                            http.webAppLanUrl?.let { webLan ->
+                                Text(
+                                    text = "PC / Phone Wi-Fi WebApp: $webLan",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = PlatinumText
+                                )
+                            }
+                            Text(
+                                text = "Local APK Download URL: ${http.localUrl}",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = activeTheme.primaryColor
+                            )
+                            http.lanUrl?.let { lan ->
+                                Text(
+                                    text = "Same Wi-Fi APK Link (PC/Phone): $lan",
+                                    style = MaterialTheme.typography.labelSmall,
+                                    color = PlatinumText
+                                )
+                            }
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                Button(
+                                    onClick = { openUrlInBrowser(context, http.webAppLocalUrl) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = EmeraldIon,
+                                        contentColor = activeTheme.backgroundVoid
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(48.dp)
+                                        .testTag("open_local_webapp_url_button")
+                                ) {
+                                    Icon(Icons.Rounded.Language, contentDescription = "Open WebApp in Browser", modifier = Modifier.size(18.dp))
+                                    Text(" Open WebApp", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                }
+                                Button(
+                                    onClick = { openUrlInBrowser(context, http.localUrl) },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = activeTheme.primaryColor,
+                                        contentColor = activeTheme.backgroundVoid
+                                    ),
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(48.dp)
+                                        .testTag("open_local_apk_url_button")
+                                ) {
+                                    Icon(Icons.Rounded.Download, contentDescription = "Download APK via Browser", modifier = Modifier.size(18.dp))
+                                    Text(" Download APK", style = MaterialTheme.typography.labelLarge, fontWeight = FontWeight.Bold)
+                                }
+                            }
+                        }
                     }
                 }
                 OutlinedButton(

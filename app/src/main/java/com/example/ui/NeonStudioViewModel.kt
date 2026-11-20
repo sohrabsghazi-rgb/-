@@ -21,6 +21,8 @@ import com.example.ai.GeminiStudioRepository
 import com.example.drive.DriveAuthOutcome
 import com.example.drive.DriveFileItem
 import com.example.drive.GoogleDriveRepository
+import com.example.engine.ApkHttpServerInfo
+import com.example.engine.ApkLocalHttpServer
 import com.example.engine.ExportAndQcEngine
 import com.example.engine.ExportPackageResult
 import com.example.engine.Neon3DRenderer
@@ -152,8 +154,13 @@ class NeonStudioViewModel(
     private val _driveState = MutableStateFlow(DriveUiState())
     val driveState: StateFlow<DriveUiState> = _driveState.asStateFlow()
 
+    private val apkHttpServer = ApkLocalHttpServer()
+
     private val _apkDeliveryStatus = MutableStateFlow<String?>(null)
     val apkDeliveryStatus: StateFlow<String?> = _apkDeliveryStatus.asStateFlow()
+
+    private val _apkHttpInfo = MutableStateFlow<ApkHttpServerInfo?>(null)
+    val apkHttpInfo: StateFlow<ApkHttpServerInfo?> = _apkHttpInfo.asStateFlow()
 
     val allCatalogAssets: List<NeonAssetSpec>
         get() = NeonCatalog.builtInAssets + _driveAssets.value
@@ -598,12 +605,14 @@ class NeonStudioViewModel(
             )
             uploadRes.fold(
                 onSuccess = { uploaded ->
+                    val directUrl = driveRepository.makeFilePublicAndDirectUrl(token, uploaded.id)
+                        .getOrElse { uploaded.webViewLink }
                     _driveState.update {
                         it.copy(
                             isUploadingApk = false,
                             uploadProgressLabel = null,
-                            uploadedApkUrl = uploaded.webViewLink,
-                            statusMessage = "Full APK uploaded to Google Drive: ${uploaded.name}"
+                            uploadedApkUrl = directUrl,
+                            statusMessage = "Direct APK Download Link Ready: $directUrl"
                         )
                     }
                 },
@@ -620,6 +629,49 @@ class NeonStudioViewModel(
         }
     }
 
+    fun toggleLocalApkHttpServer(context: Context) {
+        if (_apkHttpInfo.value != null) {
+            apkHttpServer.stop()
+            _apkHttpInfo.value = null
+            _apkDeliveryStatus.value = "Local APK HTTP server stopped."
+        } else {
+            val res = apkHttpServer.start(context.applicationContext, viewModelScope)
+            res.fold(
+                onSuccess = { info ->
+                    _apkHttpInfo.value = info
+                    _apkDeliveryStatus.value = "Offline WebApp & APK server live on port ${info.port}"
+                },
+                onFailure = { err ->
+                    _apkDeliveryStatus.value = "Error: ${err.localizedMessage ?: "Cannot start HTTP server"}"
+                }
+            )
+        }
+    }
+
+    fun launchOfflineWebAppInBrowser(context: Context, onUrlReady: (String) -> Unit) {
+        val current = _apkHttpInfo.value
+        if (current != null) {
+            onUrlReady(current.webAppLocalUrl)
+            return
+        }
+        val res = apkHttpServer.start(context.applicationContext, viewModelScope)
+        res.fold(
+            onSuccess = { info ->
+                _apkHttpInfo.value = info
+                _apkDeliveryStatus.value = "Offline WebApp running at ${info.webAppLocalUrl}"
+                onUrlReady(info.webAppLocalUrl)
+            },
+            onFailure = { err ->
+                _apkDeliveryStatus.value = "Error: ${err.localizedMessage ?: "Cannot launch WebApp server"}"
+            }
+        )
+    }
+
+    override fun onCleared() {
+        apkHttpServer.stop()
+        super.onCleared()
+    }
+
     fun saveApkDirectlyToPhoneDownloads(context: Context) {
         viewModelScope.launch {
             _apkDeliveryStatus.value = "Saving APK to Phone Downloads..."
@@ -627,6 +679,33 @@ class NeonStudioViewModel(
             _apkDeliveryStatus.value = res.fold(
                 onSuccess = { msg -> msg },
                 onFailure = { err -> "Error: ${err.localizedMessage ?: "Failed to save APK"}" }
+            )
+        }
+    }
+
+    fun saveOfflineWebAppToDownloads(context: Context) {
+        viewModelScope.launch {
+            _apkDeliveryStatus.value = "Saving standalone Offline WebApp (.html)..."
+            val res = ExportAndQcEngine.saveOfflineWebAppHtmlToDownloads(context.applicationContext)
+            _apkDeliveryStatus.value = res.fold(
+                onSuccess = { msg -> msg },
+                onFailure = { err -> "Error: ${err.localizedMessage ?: "Failed to save Offline WebApp"}" }
+            )
+        }
+    }
+
+    fun shareOfflineWebAppDirectly(context: Context, onUriReady: (Uri) -> Unit) {
+        viewModelScope.launch {
+            _apkDeliveryStatus.value = "Preparing standalone Offline WebApp (.html)..."
+            val res = ExportAndQcEngine.prepareOfflineWebAppShareUri(context.applicationContext)
+            res.fold(
+                onSuccess = { uri ->
+                    _apkDeliveryStatus.value = "Offline WebApp ready to share to PC or Phone."
+                    onUriReady(uri)
+                },
+                onFailure = { err ->
+                    _apkDeliveryStatus.value = "Error: ${err.localizedMessage ?: "Unable to prepare WebApp HTML"}"
+                }
             )
         }
     }

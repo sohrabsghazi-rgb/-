@@ -174,4 +174,18 @@ class ExampleRobolectricTest {
             bmp.recycle()
         }
     }
+
+    @Test
+    fun `offline webapp assets are bundled with zero external dependencies and 84 effects`() {
+        val context = ApplicationProvider.getApplicationContext<Context>()
+        val html = context.assets.open("webapp/index.html").bufferedReader().use { it.readText() }
+        val manifest = context.assets.open("webapp/manifest.webmanifest").bufferedReader().use { it.readText() }
+        val sw = context.assets.open("webapp/sw.js").bufferedReader().use { it.readText() }
+
+        assertTrue("Offline index.html must include CORE_34 and PRO_50_DEFS", html.contains("CORE_34") && html.contains("PRO_50_DEFS"))
+        assertTrue("Offline index.html must include all 50 Pro effects", html.contains("INFINITY_COSMIC_PORTAL_AURA"))
+        assertTrue("Offline index.html must include ZIP builder for 16K offline export", html.contains("buildZipBlob"))
+        assertTrue("Offline manifest must configure standalone PWA", manifest.contains("\"display\": \"standalone\""))
+        assertTrue("Offline service worker must cache index.html", sw.contains("./index.html"))
+    }
 }

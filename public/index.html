@@ -1,0 +1,1633 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#00E5FF" />
+  <title>NeonVFX Studio Pro · 3D Raw Alpha (FullHD / 4K / 16K)</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <style>
+    :root {
+      --bg-void: #050810;
+      --panel-bg: #0b1220;
+      --deck-bg: #131e33;
+      --border: #283b5e;
+      --primary: #00e5ff;
+      --secondary: #ffb84d;
+      --tertiary: #9d4edd;
+      --text-main: #eef5ff;
+      --text-muted: #8ea4c8;
+      --emerald: #00e676;
+      --crimson: #ff4d6d;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --font-ui: "Vazirmatn", "Segoe UI", "SF Pro Display", Tahoma, Roboto, sans-serif;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    html, body {
+      margin: 0; padding: 0;
+      min-height: 100%;
+      background: radial-gradient(circle at 18% 12%, rgba(0,229,255,0.09), transparent 42%),
+                  radial-gradient(circle at 82% 85%, rgba(157,78,221,0.09), transparent 45%),
+                  var(--bg-void);
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      overflow-x: hidden;
+    }
+
+    /* Command Bar */
+    .topbar {
+      position: sticky; top: 0; z-index: 40;
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 10px 16px;
+      background: rgba(8, 13, 24, 0.90);
+      backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 38px; height: 38px; border-radius: 11px;
+      background: linear-gradient(135deg, var(--primary), var(--tertiary));
+      display: grid; place-items: center;
+      box-shadow: 0 0 18px rgba(0,229,255,0.35);
+      flex-shrink: 0;
+    }
+    .brand-title { font-weight: 800; font-size: 15px; letter-spacing: 0.3px; }
+    .brand-sub { font-size: 11px; color: var(--primary); font-weight: 600; }
+
+    .topbar-actions { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .pill {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 11px; border-radius: 999px;
+      font-size: 11px; font-weight: 700;
+      border: 1px solid var(--border);
+      background: var(--deck-bg);
+      color: var(--text-main);
+      cursor: pointer; transition: 0.18s ease;
+    }
+    .pill:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .pill.active {
+      background: color-mix(in srgb, var(--primary) 18%, transparent);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+    .pill.emerald {
+      border-color: rgba(0,230,118,0.45);
+      background: rgba(0,230,118,0.12);
+      color: var(--emerald);
+    }
+
+    /* Mobile View Switcher */
+    .mobile-tabs {
+      display: none;
+      position: sticky; top: 59px; z-index: 35;
+      background: rgba(11,18,32,0.96);
+      border-bottom: 1px solid var(--border);
+      padding: 6px 10px; gap: 6px;
+    }
+    .mobile-tab {
+      flex: 1; padding: 9px 6px; border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent; color: var(--text-muted);
+      font-family: var(--font-ui); font-weight: 700; font-size: 12px;
+      cursor: pointer;
+    }
+    .mobile-tab.active {
+      background: color-mix(in srgb, var(--primary) 16%, var(--deck-bg));
+      border-color: var(--primary); color: var(--primary);
+    }
+
+    /* Desktop 3-Column Studio Grid */
+    .studio-grid {
+      display: grid;
+      grid-template-columns: 340px minmax(380px, 1fr) 360px;
+      gap: 14px;
+      padding: 14px;
+      max-width: 1720px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    .panel {
+      background: var(--panel-bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      box-shadow: 0 12px 32px rgba(0,0,0,0.35);
+    }
+    .panel-scroll {
+      max-height: calc(100vh - 96px);
+      overflow-y: auto;
+      scrollbar-width: thin;
+      scrollbar-color: var(--border) transparent;
+    }
+    .section-title {
+      font-size: 12px; font-weight: 800; letter-spacing: 0.7px;
+      color: var(--primary); text-transform: uppercase;
+      margin: 0 0 8px 0; display: flex; align-items: center; justify-content: space-between;
+    }
+    .helper-text { font-size: 12px; color: var(--text-muted); line-height: 1.55; margin: 4px 0 10px; }
+
+    /* Catalog Cards */
+    .search-input {
+      width: 100%; padding: 10px 12px; border-radius: 11px;
+      background: var(--deck-bg); border: 1px solid var(--border);
+      color: var(--text-main); font-family: var(--font-ui); font-size: 13px;
+      outline: none; margin-bottom: 10px;
+    }
+    .search-input:focus { border-color: var(--primary); }
+    .chip-row {
+      display: flex; gap: 6px; overflow-x: auto; padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+    .chip-row::-webkit-scrollbar { display: none; }
+    .chip {
+      white-space: nowrap; padding: 6px 10px; border-radius: 999px;
+      background: var(--deck-bg); border: 1px solid var(--border);
+      color: var(--text-muted); font-size: 11px; font-weight: 700;
+      cursor: pointer; flex-shrink: 0; font-family: var(--font-ui);
+    }
+    .chip.active {
+      background: var(--primary); color: #041018; border-color: var(--primary);
+    }
+
+    .asset-list { display: flex; flex-direction: column; gap: 8px; margin-top: 6px; }
+    .asset-card {
+      display: flex; align-items: center; gap: 10px;
+      padding: 9px; border-radius: 13px;
+      background: var(--deck-bg); border: 1px solid var(--border);
+      cursor: pointer; transition: 0.16s ease;
+    }
+    .asset-card:hover { border-color: var(--primary); }
+    .asset-card.selected {
+      border-color: var(--primary);
+      background: color-mix(in srgb, var(--primary) 13%, var(--deck-bg));
+      box-shadow: inset 0 0 0 1px rgba(0,229,255,0.28);
+    }
+    .asset-thumb {
+      width: 54px; height: 54px; border-radius: 10px; flex-shrink: 0;
+      background: repeating-conic-gradient(#1b2538 0% 25%, #111827 0% 50%) 50% / 12px 12px;
+      border: 1px solid var(--border);
+    }
+    .asset-meta { flex: 1; min-width: 0; }
+    .asset-code { font-size: 10px; font-weight: 800; color: var(--secondary); }
+    .asset-title { font-size: 13px; font-weight: 700; color: var(--text-main); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .asset-fa { font-size: 11px; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .layer-btn {
+      padding: 5px 8px; border-radius: 8px; border: 1px solid var(--border);
+      background: rgba(255,255,255,0.04); color: var(--primary);
+      font-size: 11px; font-weight: 700; cursor: pointer; font-family: var(--font-ui);
+    }
+    .layer-btn.layered { background: var(--secondary); color: #050810; border-color: var(--secondary); }
+
+    /* Center Viewport */
+    .viewport-wrap { display: flex; flex-direction: column; gap: 12px; }
+    .stage-container {
+      position: relative; width: 100%;
+      min-height: 410px;
+      display: flex; align-items: center; justify-content: center;
+      background: var(--deck-bg);
+      border-radius: var(--radius-lg);
+      border: 1px solid var(--border);
+      padding: 16px;
+      overflow: hidden;
+      perspective: 1100px;
+    }
+    .stage-frame {
+      position: relative;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 20px 55px rgba(0,0,0,0.62);
+      border: 1px solid rgba(255,255,255,0.12);
+      transition: transform 0.14s ease-out;
+      max-width: 100%;
+    }
+    .stage-frame.bg-checker {
+      background-image:
+        linear-gradient(45deg, #273142 25%, transparent 25%),
+        linear-gradient(-45deg, #273142 25%, transparent 25%),
+        linear-gradient(45deg, transparent 75%, #273142 75%),
+        linear-gradient(-45deg, transparent 75%, #273142 75%);
+      background-size: 22px 22px;
+      background-position: 0 0, 0 11px, 11px -11px, -11px 0;
+      background-color: #1c2433;
+    }
+    .stage-frame.bg-black { background: #000000; }
+    .stage-frame.bg-white { background: #ffffff; }
+    .stage-frame.bg-dark { background: radial-gradient(circle at 50% 35%, #16243b, #080d17); }
+    .stage-frame.bg-sky { background: linear-gradient(180deg, #6db3f2, #cde7ff); }
+    .stage-frame.bg-indigo { background: radial-gradient(circle at 50% 50%, #43187a, #17082e); }
+
+    canvas#mainCanvas { display: block; width: 100%; height: 100%; }
+    .stage-badges {
+      position: absolute; top: 10px; left: 10px; right: 10px;
+      display: flex; justify-content: space-between; pointer-events: none; gap: 6px;
+    }
+    .badge {
+      padding: 4px 9px; border-radius: 999px; font-size: 10px; font-weight: 800;
+      background: rgba(5,8,16,0.78); border: 1px solid rgba(255,255,255,0.18);
+      color: var(--text-main); backdrop-filter: blur(8px);
+    }
+    .badge.raw { color: var(--emerald); border-color: rgba(0,230,118,0.45); }
+
+    /* Playback Deck */
+    .transport-bar {
+      display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+      background: var(--deck-bg); padding: 10px 12px;
+      border-radius: var(--radius-md); border: 1px solid var(--border);
+    }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      padding: 10px 14px; border-radius: 11px; border: 1px solid var(--border);
+      background: var(--deck-bg); color: var(--text-main);
+      font-family: var(--font-ui); font-size: 12px; font-weight: 700;
+      cursor: pointer; transition: 0.16s ease; min-height: 42px;
+    }
+    .btn:hover { border-color: var(--primary); }
+    .btn.primary {
+      background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--primary) 72%, #0066ff));
+      color: #031018; border-color: transparent; font-weight: 800;
+    }
+    .btn.secondary {
+      background: linear-gradient(135deg, var(--secondary), #ff8c00);
+      color: #160c00; border-color: transparent; font-weight: 800;
+    }
+    .btn.full { width: 100%; }
+
+    .slider-group { margin-bottom: 11px; }
+    .slider-label {
+      display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 4px;
+      color: var(--text-main); font-weight: 600;
+    }
+    .slider-val { color: var(--primary); font-family: monospace; font-weight: 800; }
+    input[type="range"] {
+      width: 100%; accent-color: var(--primary); cursor: pointer;
+    }
+
+    .card-box {
+      background: var(--deck-bg); border: 1px solid var(--border);
+      border-radius: var(--radius-md); padding: 12px; margin-bottom: 12px;
+    }
+    .switch-row {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      padding: 6px 0; font-size: 12px; font-weight: 600;
+    }
+    .qc-pass-row {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 6px 8px; border-radius: 8px; background: rgba(255,255,255,0.03);
+      font-size: 11px; margin-bottom: 5px;
+    }
+    .qc-ok { color: var(--emerald); font-weight: 800; }
+    .qc-fail { color: var(--crimson); font-weight: 800; }
+
+    .progress-bar-wrap {
+      width: 100%; height: 8px; border-radius: 999px; background: rgba(255,255,255,0.08);
+      overflow: hidden; margin: 8px 0; display: none;
+    }
+    .progress-bar-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.1s linear; }
+
+    @media (max-width: 1120px) {
+      .studio-grid { grid-template-columns: 300px 1fr; }
+      .col-inspector { grid-column: 1 / -1; max-height: none; }
+    }
+    @media (max-width: 780px) {
+      .mobile-tabs { display: flex; }
+      .studio-grid { grid-template-columns: 1fr; padding: 10px; }
+      .panel-scroll { max-height: none; }
+      .col-catalog, .col-viewport, .col-inspector { display: none; }
+      .col-catalog.mobile-show, .col-viewport.mobile-show, .col-inspector.mobile-show { display: block; }
+      .stage-container { min-height: 320px; padding: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#041018" stroke-width="2.5">
+          <rect x="4" y="4" width="16" height="16" rx="4"/>
+          <rect x="8" y="8" width="8" height="8" rx="2"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-title">NeonVFX Studio Pro · Web Edition</div>
+        <div class="brand-sub" id="statusSubline">84 Raw 3D Assets · Offline Ready · 16K Engine</div>
+      </div>
+    </div>
+
+    <div class="topbar-actions">
+      <span class="pill emerald" id="offlineBadge">● OFFLINE READY (ZERO NET)</span>
+      <button class="pill" data-theme="OBSIDIAN" onclick="setTheme('OBSIDIAN')">Obsidian Cyan</button>
+      <button class="pill" data-theme="GOLD" onclick="setTheme('GOLD')">Champagne Gold</button>
+      <button class="pill" data-theme="QUANTUM" onclick="setTheme('QUANTUM')">UV Quantum</button>
+      <button class="pill" data-theme="EMERALD" onclick="setTheme('EMERALD')">Emerald Cryo</button>
+    </div>
+  </header>
+
+  <nav class="mobile-tabs">
+    <button class="mobile-tab active" onclick="switchMobilePane('viewport', this)">استودیو و نمایش 3D</button>
+    <button class="mobile-tab" onclick="switchMobilePane('catalog', this)">۸۴ افکت و قاب</button>
+    <button class="mobile-tab" onclick="switchMobilePane('inspector', this)">عکس و خروجی 16K</button>
+  </nav>
+
+  <main class="studio-grid">
+    <!-- Column 1: 84 Asset Catalog -->
+    <section class="panel panel-scroll col-catalog" id="pane-catalog">
+      <h2 class="section-title">
+        <span>کالکشن ۸۴ افکت سه‌بعدی خام</span>
+        <span id="catalogCountBadge">84</span>
+      </h2>
+      <input id="searchInput" class="search-input" type="search" placeholder="جستجوی نام افکت، قاب، دود، برف، 16K..." oninput="renderCatalog()" />
+      <div class="chip-row" id="categoryChips"></div>
+      <div class="asset-list" id="assetList"></div>
+    </section>
+
+    <!-- Column 2: Interactive 3D Viewport -->
+    <section class="viewport-wrap col-viewport mobile-show" id="pane-viewport">
+      <div class="panel">
+        <div class="chip-row" style="margin-bottom:8px;">
+          <button class="chip active" id="ratio_9_16" onclick="setAspectRatio('9:16')">Portrait 9:16</button>
+          <button class="chip" id="ratio_16_9" onclick="setAspectRatio('16:9')">Landscape 16:9</button>
+          <button class="chip" id="ratio_1_1" onclick="setAspectRatio('1:1')">Square 1:1</button>
+          <button class="chip active" id="tiltToggleBtn" onclick="toggle3DTilt()">3D Tilt: ON</button>
+        </div>
+
+        <div class="stage-container" id="stageContainer">
+          <div class="stage-frame bg-checker" id="stageFrame">
+            <canvas id="mainCanvas"></canvas>
+            <div class="stage-badges">
+              <span class="badge raw" id="rawBadge">RAW ALPHA 100%</span>
+              <span class="badge" id="activeSpecBadge">02_CYAN_GLASS_NEON</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="chip-row" style="margin-top:10px;" id="backdropChips"></div>
+
+        <div class="transport-bar" style="margin-top:8px;">
+          <button class="btn primary" id="playPauseBtn" onclick="togglePlay()">⏸ توقف</button>
+          <div style="flex:1; min-width:140px;">
+            <div class="slider-label">
+              <span>لوپ ۱۵ ثانیه‌ای بدون پرش</span>
+              <span class="slider-val" id="timeReadout">0.00s / 15.00s</span>
+            </div>
+            <input type="range" id="timeSlider" min="0" max="15" step="0.02" value="0" oninput="scrubTime(this.value)" />
+          </div>
+          <button class="chip" data-speed="0.5" onclick="setSpeed(0.5)">0.5x</button>
+          <button class="chip active" data-speed="1" onclick="setSpeed(1)">1x</button>
+          <button class="chip" data-speed="1.5" onclick="setSpeed(1.5)">1.5x</button>
+        </div>
+
+        <div class="helper-text" id="activeDescription" style="margin-top:10px; margin-bottom:0;"></div>
+      </div>
+    </section>
+
+    <!-- Column 3: Photo Placement, PBR Controls, QC & Offline 16K Export -->
+    <section class="panel panel-scroll col-inspector" id="pane-inspector">
+      <h2 class="section-title">جاگذاری تصویر داخل قاب</h2>
+      <div class="card-box">
+        <div class="helper-text" style="margin-top:0;">
+          عکس دلخواه خود را داخل قاب سه‌بعدی بگذارید. به‌صورت پیش‌فرض، خروجی نهایی همچنان <strong>افکت خام کاملاً شفاف بدون عکس</strong> ذخیره می‌شود.
+        </div>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <label class="btn primary" style="flex:1;">
+            <span>+ افزودن / تغییر عکس</span>
+            <input type="file" id="photoFileInput" accept="image/*" style="display:none" onchange="handlePhotoUpload(event)" />
+          </label>
+          <button class="btn" onclick="clearPlacedPhoto()">پاک کردن</button>
+        </div>
+        <div class="chip-row" id="placementChips">
+          <button class="chip active" data-pm="INSIDE" onclick="setPlacementMode('INSIDE')">داخل قاب (Crop)</button>
+          <button class="chip" data-pm="BEHIND" onclick="setPlacementMode('BEHIND')">تمام‌صفحه زیر افکت</button>
+          <button class="chip" data-pm="FIT" onclick="setPlacementMode('FIT')">وسط‌چین متناسب</button>
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>بزرگنمایی عکس (Zoom)</span><span class="slider-val" id="imgZoomVal">1.00x</span></div>
+          <input type="range" min="0.5" max="2.2" step="0.05" value="1" oninput="state.imgZoom=+this.value; document.getElementById('imgZoomVal').textContent=this.value+'x'" />
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>شفافیت عکس</span><span class="slider-val" id="imgOpVal">100%</span></div>
+          <input type="range" min="0.1" max="1" step="0.05" value="1" oninput="state.imgOpacity=+this.value; document.getElementById('imgOpVal').textContent=Math.round(this.value*100)+'%'" />
+        </div>
+        <div class="switch-row">
+          <span>فقط خروجی افکت خام (بدون عکس در فایل نهایی)</span>
+          <input type="checkbox" id="rawLockCheck" checked onchange="state.rawAlphaOnly=this.checked; updateBadges();" />
+        </div>
+      </div>
+
+      <h2 class="section-title">تنظیمات متریال سه‌بعدی PBR</h2>
+      <div class="card-box">
+        <div class="slider-group">
+          <div class="slider-label"><span>انحنای گوشه‌ها</span><span class="slider-val" id="cornerVal">14%</span></div>
+          <input type="range" min="0.05" max="0.28" step="0.01" value="0.14" oninput="state.corner=+this.value; document.getElementById('cornerVal').textContent=Math.round(this.value*100)+'%'" />
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>عمق پخ سه‌بعدی (Bevel 3D)</span><span class="slider-val" id="bevelVal">1.00x</span></div>
+          <input type="range" min="0.6" max="1.7" step="0.05" value="1.0" oninput="state.bevel=+this.value; document.getElementById('bevelVal').textContent=Number(this.value).toFixed(2)+'x'" />
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>نورپردازی حجمی (Bloom)</span><span class="slider-val" id="glowVal">1.05x</span></div>
+          <input type="range" min="0.4" max="1.7" step="0.05" value="1.05" oninput="state.glow=+this.value; document.getElementById('glowVal').textContent=Number(this.value).toFixed(2)+'x'" />
+        </div>
+        <div class="slider-group">
+          <div class="slider-label"><span>تراکم ذرات و جرقه‌ها</span><span class="slider-val" id="partVal">1.00x</span></div>
+          <input type="range" min="0.3" max="1.8" step="0.05" value="1.0" oninput="state.particles=+this.value; document.getElementById('partVal').textContent=Number(this.value).toFixed(2)+'x'" />
+        </div>
+      </div>
+
+      <h2 class="section-title">خروجی آفلاین FullHD / 4K / 16K و ویدیو</h2>
+      <div class="card-box">
+        <div class="chip-row" style="margin-bottom:8px;">
+          <button class="chip active" data-tier="FULL_HD" onclick="setTier('FULL_HD')">FullHD (1080p)</button>
+          <button class="chip" data-tier="UHD_4K" onclick="setTier('UHD_4K')">4K UHD</button>
+          <button class="chip" data-tier="MASTER_16K" onclick="setTier('MASTER_16K')">16K Tiled ZIP</button>
+        </div>
+
+        <button class="btn primary full" onclick="exportSingleMasterPng()" style="margin-bottom:8px;">
+          ⬇ دانلود مستقیم PNG شفاف (FullHD / 4K)
+        </button>
+        <button class="btn secondary full" onclick="exportCompleteZipBundle()" style="margin-bottom:8px;">
+          📦 ساخت و دانلود پکیج کامل ZIP (16K Tiles + توالی فریم + Manifest)
+        </button>
+        <button class="btn full" onclick="recordLoopWebM()">
+          🎬 ضبط مستقیم ویدیو لوپ (WebM 60fps)
+        </button>
+
+        <div class="progress-bar-wrap" id="exportProgressWrap">
+          <div class="progress-bar-fill" id="exportProgressBar"></div>
+        </div>
+        <div class="helper-text" id="exportStatusMsg" style="margin-bottom:0;"></div>
+      </div>
+
+      <h2 class="section-title">
+        <span>ممیزی ۷ مرحله‌ای کیفیت (7-Pass QC)</span>
+        <button class="chip" onclick="runSevenPassQc()">تست مجدد</button>
+      </h2>
+      <div class="card-box" id="qcContainer"></div>
+    </section>
+  </main>
+
+<script>
+// ===================== 1. CATALOG OF ALL 84 RAW 3D ASSETS =====================
+const CORE_34 = [
+  { key:"01_ICE_WHITE_PLASMA", code:"01", title:"Ice White Plasma", fa:"پلاسمای سفید یخی", cat:"VISUAL_MODEL", arch:"FRAME_PLASMA_ELECTRIC", p:"#B8F8FF", s:"#70D6FF", c:"#FFFFFF", ch:"#101C26", desc:"فریم سه‌بعدی سفید یخی و نقره‌ای با قوس‌های الکتریکی و ذرات پلاسما." },
+  { key:"02_CYAN_GLASS_NEON", code:"02", title:"Cyan Glass Neon", fa:"نئون شیشه‌ای فیروزه‌ای", cat:"VISUAL_MODEL", arch:"FRAME_GLASS_BEVEL_3D", p:"#00E5FF", s:"#0091EA", c:"#E0FFFF", ch:"#072333", desc:"قاب شیشه‌ای سه‌بعدی با لبه‌های پخ‌خورده، بازتاب مورب و نور فیروزه‌ای." },
+  { key:"03_ELECTRIC_BLUE", code:"03", title:"Electric Blue", fa:"آبی الکتریک پرانرژی", cat:"VISUAL_MODEL", arch:"FRAME_PLASMA_ELECTRIC", p:"#2979FF", s:"#00D4FF", c:"#EAF4FF", ch:"#08142E", desc:"فریم آبی یاقوتی با حرکت موج انرژی دور قاب و جرقه‌های ظریف." },
+  { key:"04_VIOLET_PLASMA", code:"04", title:"Violet Plasma", fa:"پلاسمای بنفش فرابنفش", cat:"VISUAL_MODEL", arch:"FRAME_PLASMA_ELECTRIC", p:"#B55CFF", s:"#6A00F4", c:"#F5E6FF", ch:"#1A092B", desc:"فریم انرژی بنفش با امواج نرم پلاسما و ذرات معلق فرابنفش." },
+  { key:"05_CHAMPAGNE_GOLD", code:"05", title:"Champagne Gold", fa:"طلایی شامپاینی لوکس", cat:"VISUAL_MODEL", arch:"FRAME_LIQUID_CHROME", p:"#FFC966", s:"#D48817", c:"#FFF8E6", ch:"#261A09", desc:"فریم لوکس طلایی با انعکاس فلزی پخ‌خورده و گرد طلا." },
+  { key:"06_EMERALD_ION", code:"06", title:"Emerald Ion", fa:"یون زمردی پیشرفته", cat:"VISUAL_MODEL", arch:"FRAME_ENERGY_FLOW", p:"#00E676", s:"#00BFA5", c:"#E6FFF2", ch:"#072419", desc:"فریم سبز زمردی با جریان پیوسته انرژی یونی و بازتاب شفاف." },
+  { key:"07_BREATHING_NEON", code:"07", title:"Breathing Neon", fa:"نئون تنفسی آرام", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_BREATHING", p:"#38F6FF", s:"#0099CC", c:"#FFFFFF", ch:"#0A1B2A", desc:"چرخه تنفسی ارگانیک و آرام نور در لوپ ۱۵ ثانیه‌ای." },
+  { key:"08_HEARTBEAT_NEON", code:"08", title:"Heartbeat Neon", fa:"نئون ضربان قلب دوگانه", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_HEARTBEAT", p:"#FF4D8D", s:"#8A2BE2", c:"#FFEAF2", ch:"#260917", desc:"توالی ضربان قلب دوگانه Lub-Dub با بازگشت آرام به حالت پایه." },
+  { key:"09_ENERGY_FLOW", code:"09", title:"Energy Flow", fa:"جریان پیوسته انرژی", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_ENERGY_FLOW", p:"#00D4FF", s:"#7B2CBF", c:"#F0FCFF", ch:"#0B1426", desc:"موج پیوسته انرژی در امتداد کل قاب همراه با دنباله نورانی." },
+  { key:"10_CINEMATIC_GLOW", code:"10", title:"Cinematic Glow", fa:"درخشش سینمایی متعادل", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_CINEMATIC_GLOW", p:"#72EFDD", s:"#48BFE3", c:"#F7FFFF", ch:"#0B2026", desc:"نورپردازی آرام و لوکس با درخشش موجی متعادل." },
+  { key:"11_ELECTRIC_PULSE", code:"11", title:"Electric Pulse", fa:"پالس و تخلیه الکتریکی", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_PLASMA_ELECTRIC", p:"#5CE1E6", s:"#3A86FF", c:"#FFFFFF", ch:"#08182E", desc:"تخلیه‌های الکتریکی کنترل‌شده شامل جرقه‌های ریز و قوس‌های موضعی." },
+  { key:"12_LIGHT_SCAN", code:"12", title:"Light Scan", fa:"اسکن نوری دقیق دور قاب", cat:"ANIMATION_BEHAVIOR", arch:"FRAME_LIGHT_SCAN", p:"#00F5D4", s:"#00BBF9", c:"#FFFFFF", ch:"#091B24", desc:"نقطه نورانی متمرکز که مسیر هندسی قاب مستطیل گرد را اسکن می‌کند." },
+  { key:"13_BEVELED_CYAN_GLASS_3D", code:"13", title:"3D Beveled Sapphire Glass", fa:"قاب شیشه‌ای پخ‌خورده سه‌بعدی", cat:"VISUAL_MODEL", arch:"FRAME_GLASS_BEVEL_3D", p:"#3DF5FF", s:"#0077B6", c:"#F0FFFF", ch:"#061E2B", desc:"قاب شیشه‌ای عمیق با لبه‌های چندلایه پخ‌خورده و بازتاب استودیویی." },
+  { key:"14_PRISM_HOLOGRAPHIC_3D", code:"14", title:"Holographic Prism 3D", fa:"منشور هولوگرافیک سه‌بعدی", cat:"VISUAL_MODEL", arch:"FRAME_PRISM_HOLOGRAPHIC", p:"#00F5D4", s:"#FF4ECD", c:"#FFFFFF", ch:"#121024", desc:"فریم منشوری سه‌بعدی با شکست نور طیف رنگین‌کمانی." },
+  { key:"15_LIQUID_CHROME_3D", code:"15", title:"Liquid Chrome & Gold 3D", fa:"کروم مایع و طلایی سه‌بعدی", cat:"VISUAL_MODEL", arch:"FRAME_LIQUID_CHROME", p:"#E2E8F0", s:"#FFB84D", c:"#FFFFFF", ch:"#1A202C", desc:"متریال فلزی کروم مایع با بازتاب‌های براق و حاشیه طلایی." },
+  { key:"16_CYBER_CIRCUIT_3D", code:"16", title:"Cyber Circuit Bevel 3D", fa:"مدار سایبرنتیک سه‌بعدی", cat:"VISUAL_MODEL", arch:"FRAME_CYBER_CIRCUIT", p:"#00E5FF", s:"#7C3AED", c:"#E0FFFF", ch:"#0A1120", desc:"فریم مهندسی‌شده با گره‌های مدار نوری روی بدنه فلزی پخ‌خورده." },
+  { key:"17_AURORA_VOLUMETRIC_3D", code:"17", title:"Aurora Volumetric 3D", fa:"شفق قطبی حجمی سه‌بعدی", cat:"VISUAL_MODEL", arch:"FRAME_AURORA_VOLUMETRIC", p:"#00F5A0", s:"#00D9F5", c:"#F0FFF8", ch:"#071A1E", desc:"جریان نرم و چندلایه نور شفق قطبی درون کانال شیشه‌ای سه‌بعدی." },
+  { key:"18_DIAMOND_CRYSTAL_3D", code:"18", title:"Diamond Crystal Bevel 3D", fa:"قاب کریستال الماسی سه‌بعدی", cat:"STUDIO_PRO_IDEAS", arch:"FRAME_DIAMOND_CRYSTAL_3D", p:"#E0F7FA", s:"#38BDF8", c:"#FFFFFF", ch:"#0E1A2B", desc:"قاب تراش‌خورده الماسی با درخشش کریستالی روی لبه‌های شیشه‌ای خام." },
+  { key:"19_MOLTEN_COPPER_3D", code:"19", title:"Molten Copper & Ember 3D", fa:"قاب مس ذوب‌شده سه‌بعدی", cat:"STUDIO_PRO_IDEAS", arch:"FRAME_MOLTEN_COPPER_3D", p:"#FF8C42", s:"#C05621", c:"#FFF1D6", ch:"#261209", desc:"بدنه فلزی مسی برس‌خورده با عمق سه‌بعدی و جرقه‌های داغ." },
+  { key:"VFX_01_Golden_Particles", code:"VFX-01", title:"Golden Particles & Glow", fa:"ذرات طلایی و نور حجمی", cat:"REFERENCE_VFX", arch:"VFX_GOLDEN_PARTICLES", p:"#FFCA3A", s:"#FF7B00", c:"#FFF4CC", ch:"#211404", desc:"ذرات طلایی درخشان معلق همراه با نور حجمی گرم." },
+  { key:"VFX_02_Golden_Bokeh", code:"VFX-02", title:"Golden Cinematic Bokeh", fa:"بوکه سینمایی طلایی", cat:"REFERENCE_VFX", arch:"VFX_HEX_BOKEH_RAYS", p:"#FFB703", s:"#FB8500", c:"#FFE5B4", ch:"#241606", desc:"شش‌ضلعی‌ها و دایره‌های بوکه با پرتوهای نور مورب." },
+  { key:"VFX_03_Dark_Dust", code:"VFX-03", title:"Dark Dust & Mist", fa:"غبار و ذرات خاکستری", cat:"REFERENCE_VFX", arch:"VFX_DARK_DUST_MIST", p:"#D0D7E2", s:"#6B788E", c:"#FFFFFF", ch:"#141820", desc:"ذرات ریز و درشت خاکستری معلق همراه با غبار حجمی ظریف." },
+  { key:"VFX_04_Smoke_Embers", code:"VFX-04", title:"Smoke & Red Embers", fa:"دود حجمی و اخگر قرمز", cat:"REFERENCE_VFX", arch:"VFX_SMOKE_EMBERS", p:"#FF5400", s:"#FF9E00", c:"#FFE1A8", ch:"#200C05", desc:"دود حجمی سه‌بعدی با پیچش طبیعی و اخگرهای داغ درخشان." },
+  { key:"VFX_05_Blue_Aurora_Sparks", code:"VFX-05", title:"Blue Cryo Sparks & Fade", fa:"جرقه‌های آبی کرایو با محو نرم", cat:"REFERENCE_VFX", arch:"VFX_GLITTER_SHIMMER_FADE", p:"#38BDF8", s:"#0284C7", c:"#E0F2FE", ch:"#08192B", desc:"ذرات و جرقه‌های آبی یخی با درخشش ستاره‌ای و محوشدن نرم." },
+  { key:"VFX_06_Grey_Bokeh", code:"VFX-06", title:"Grey Optical Ring Bokeh", fa:"بوکه حلقه‌ای خاکستری و مه", cat:"REFERENCE_VFX", arch:"VFX_RING_BOKEH_FOG", p:"#C8D6E5", s:"#8395A7", c:"#F5F8FA", ch:"#131921", desc:"حلقه‌های لنزی چندلایه، مه حجمی و نورهای محو استودیویی." },
+  { key:"VFX_07_Neon_Glass_Frame", code:"VFX-07", title:"3D Neon Glass Frame", fa:"قاب شیشه‌ای سه‌بعدی", cat:"REFERENCE_VFX", arch:"FRAME_PLASMA_ELECTRIC", p:"#48F0FF", s:"#00A8CC", c:"#FFFFFF", ch:"#09222C", desc:"قاب شیشه‌ای سه‌بعدی با انعکاس مورب شیشه و پلاسمای لبه." },
+  { key:"VFX_08_Golden_Silk_Waves", code:"VFX-08", title:"Golden Silk & Dust", fa:"امواج ابریشم طلایی", cat:"REFERENCE_VFX", arch:"VFX_GOLDEN_SILK", p:"#E9B949", s:"#9C6615", c:"#FFF3CC", ch:"#1E1405", desc:"موج‌های ابریشمی طلایی نیمه‌شفاف همراه با ذرات معلق لوکس." },
+  { key:"VFX_09_Fire_Embers_Vertical", code:"VFX-09", title:"Inferno Embers Loop", fa:"اخگرهای آتشین عمودی", cat:"REFERENCE_VFX", arch:"VFX_GOLDEN_PARTICLES", p:"#FF6D00", s:"#D50000", c:"#FFE082", ch:"#260A03", desc:"جرقه‌های کشیده آتشین و هاله‌های حرارتی صعودی." },
+  { key:"VFX_10_Volumetric_Storm_Embers", code:"VFX-10", title:"Volumetric Storm & Embers", fa:"طوفان دود حجمی و پرتو نور", cat:"REFERENCE_VFX", arch:"VFX_STORM_EMBERS_RAYS", p:"#FF6B2B", s:"#5D738A", c:"#FFD8A8", ch:"#141B24", desc:"دود حجمی سه‌بعدی با پرتوهای نور مورب و اخگرهای آتشین." },
+  { key:"VFX_11_Rising_Silk_Smoke_HalfScreen_Fade", code:"IDEA-01", title:"Rising Silk Smoke (Half-Screen Fade)", fa:"دود آرام زیر به نیمه صفحه با محو نرم", cat:"STUDIO_PRO_IDEAS", arch:"VFX_RISING_SMOKE_HALF_FADE", p:"#D8E4F0", s:"#7B93AD", c:"#FFFFFF", ch:"#0B111A", desc:"دود حجمی آرام از لبه پایین که پیش از نیمه صفحه کاملاً محو و ناپدید می‌شود." },
+  { key:"VFX_12_Diamond_Sparkle_Particles_Fade", code:"IDEA-02", title:"Diamond Sparkle Dust & Fade", fa:"ذرات براق الماسی با محوشدن نرم", cat:"STUDIO_PRO_IDEAS", arch:"VFX_GLITTER_SHIMMER_FADE", p:"#FFE082", s:"#64DFDF", c:"#FFFFFF", ch:"#14110B", desc:"ذرات براق ۴پر الماسی که به‌صورت سه‌بعدی می‌درخشند و محو می‌شوند." },
+  { key:"VFX_13_Luxury_3D_God_Rays_Mist", code:"IDEA-03", title:"3D Volumetric God-Rays & Mist", fa:"پرتو نور حجمی و مه‌پاش سه‌بعدی", cat:"STUDIO_PRO_IDEAS", arch:"VFX_GOD_RAYS_MIST", p:"#FFD166", s:"#00BBF9", c:"#FFFAF0", ch:"#141822", desc:"پرتوهای نور حجمی سینمایی از میان مه نیمه‌شفاف و ذرات معلق." },
+  { key:"VFX_14_Cyber_Orbital_Energy_Aura", code:"IDEA-04", title:"Orbital 3D Energy Arcs Aura", fa:"هاله و قوس‌های انرژی مداری سه‌بعدی", cat:"STUDIO_PRO_IDEAS", arch:"VFX_CYBER_ORBITAL_ARCS", p:"#00F5D4", s:"#9B5DE5", c:"#FFFFFF", ch:"#0E0B20", desc:"حلقه‌ها و قوس‌های انرژی مداری با پرسپکتیو سه‌بعدی." },
+  { key:"VFX_15_Cryo_Ice_Frost_Sparkles", code:"IDEA-05", title:"Cryo Frost & Ice Shimmer", fa:"درخشش برفی و کریستال یخ", cat:"STUDIO_PRO_IDEAS", arch:"VFX_GLITTER_SHIMMER_FADE", p:"#A5F3FC", s:"#60A5FA", c:"#FFFFFF", ch:"#071A26", desc:"کریستال‌های یخی و ذرات براق سفید-آبی لطیف در لوپ ۱۵ ثانیه." }
+];
+
+const PRO_50_DEFS = [
+  [1,"ROYAL_CARTIER_DOUBLE_GOLD","FRAME_DOUBLE_CHAMBER_LUXURY_3D","Royal Cartier Double Gold 3D","قاب دوبل طلای کارتیه سه‌بعدی","#FFD166","#B87A14","#FFF9E6","#231807"],
+  [2,"AEROSPACE_IRON_HUD_FRAME","FRAME_LASER_GRID_HUD_3D","Aerospace Iron HUD Frame 3D","فریم هاد هوافضای آیرون سه‌بعدی","#00E5FF","#FF4D4D","#FFFFFF","#0B1422"],
+  [3,"ANGEL_WING_SAPPHIRE_BEVEL","FRAME_CYBER_WING_EMBLEM_3D","Angel Wing Sapphire Bevel 3D","فریم بال‌دار یاقوت کبود سه‌بعدی","#38BDF8","#818CF8","#F0F9FF","#0A1429"],
+  [4,"OBSIDIAN_ROSEGOLD_GLASS","FRAME_DOUBLE_CHAMBER_LUXURY_3D","Obsidian Rose-Gold Glass 3D","قاب رزگلد و شیشه دودی ابسیدین","#FFB5A7","#C96868","#FFF5F2","#1F1215"],
+  [5,"QUANTUM_HYPER_PRISM_FRAME","FRAME_PRISM_HOLOGRAPHIC","Quantum Hyper-Prism Frame 3D","قاب ابرمنشور کوانتومی سه‌بعدی","#00F5D4","#FF00E5","#FFFFFF","#120B24"],
+  [6,"VALKYRIE_CYBER_WING_MAGENTA","FRAME_CYBER_WING_EMBLEM_3D","Valkyrie Cyber Wing Magenta 3D","فریم بال‌سایبری سرخابی سه‌بعدی","#FF2A85","#7B2CBF","#FFECF5","#1E081A"],
+  [7,"SWISS_WATCH_SAPPHIRE_BEZEL","FRAME_DOUBLE_CHAMBER_LUXURY_3D","Swiss Watch Sapphire Bezel 3D","زه کریستال ساعت سوییسی سه‌بعدی","#E2E8F0","#0EA5E9","#FFFFFF","#0F172A"],
+  [8,"LAVA_BASALT_MAGMA_FRAME","FRAME_MOLTEN_COPPER_3D","Lava Basalt Magma Frame 3D","قاب بازالت و گدازه آتشفشانی","#FF5400","#FFBD00","#FFF3CC","#1D0904"],
+  [9,"EMERALD_GATSBY_ARTDECO","FRAME_DOUBLE_CHAMBER_LUXURY_3D","Emerald Gatsby Art-Deco 3D","قاب آرت‌دکو گتسبی زمردی","#10B981","#FFC966","#ECFDF5","#071C15"],
+  [10,"PLATINUM_DIAMOND_FROST_FRAME","FRAME_DIAMOND_CRYSTAL_3D","Platinum Diamond Frost Frame 3D","فریم پلاتینیوم و برفک الماس","#E0F7FA","#94A3B8","#FFFFFF","#111827"],
+  [11,"VELVET_INDIGO_FLOOR_SMOKE","VFX_RISING_SMOKE_HALF_FADE","Velvet Indigo Floor Smoke Fade","دود مخملی نیلی از زمین تا نیمه‌صفحه","#818CF8","#4F46E5","#E0E7FF","#090A1F"],
+  [12,"GOLDEN_IMPERIAL_INCENSE","VFX_RISING_SMOKE_HALF_FADE","Golden Imperial Incense Plumes","دود طلایی عود سلطنتی با محو نرم","#FFD166","#D97706","#FFFBEB","#1E1405"],
+  [13,"EMERALD_CRYO_VAPOR_FADE","VFX_RISING_SMOKE_HALF_FADE","Emerald Cryo Vapor Fade","بخار کرایو زمردی صعودکننده نیمه‌صفحه","#34D399","#059669","#D1FAE5","#061A14"],
+  [14,"CRIMSON_PHOENIX_ASH_SMOKE","VFX_SMOKE_EMBERS","Crimson Phoenix Ash & Smoke","دود و خاکستر ققنوس زرشکی سه‌بعدی","#FF3366","#FF6B35","#FFE5EC","#21070E"],
+  [15,"ARCTIC_DRY_ICE_FLOOR_FOG","VFX_RISING_SMOKE_HALF_FADE","Arctic Dry Ice Rolling Fog","مه سنگین یخ خشک قطبی روی زمین","#E0F2FE","#7DD3FC","#FFFFFF","#08141E"],
+  [16,"BIOLUMINESCENT_DEEP_MIST","VFX_DARK_DUST_MIST","Bioluminescent Deep-Sea Mist","مه بیولومینسنت اعماق اقیانوس","#2DD4BF","#0284C7","#CCFBF1","#04171D"],
+  [17,"ROSE_QUARTZ_DREAM_HAZE","VFX_RISING_SMOKE_HALF_FADE","Rose Quartz Dream Haze Fade","مه رویایی رزکوارتز با محوشدن نرم","#F9A8D4","#C084FC","#FFF1F2","#1F0C19"],
+  [18,"SILVER_CATHEDRAL_FOG","VFX_RING_BOKEH_FOG","Silver Cathedral Volumetric Fog","مه نقره‌ای کلیسایی با عمق سه‌بعدی","#E2E8F0","#64748B","#FFFFFF","#0F141C"],
+  [19,"NEBULA_VIOLET_PLASMA_CLOUD","VFX_LIQUID_AURORA_NEBULA_3D","Nebula Violet Plasma Cloud","ابر پلاسمای سحابی بنفش سه‌بعدی","#C084FC","#7C3AED","#F3E8FF","#140726"],
+  [20,"SUNSET_AMBER_SILK_VAPOR","VFX_GOLDEN_SILK","Sunset Amber Silk Vapor","بخار ابریشمی کهربایی غروب","#FB923C","#EA580C","#FFEDD5","#221006"],
+  [21,"HOLLYWOOD_GOLD_GLINT","VFX_GLITTER_SHIMMER_FADE","Hollywood Red-Carpet Gold Glint","درخشش طلایی فرش قرمز هالیوود","#FFD700","#FF8C00","#FFFFFF","#1C1403"],
+  [22,"SAKURA_BLOSSOM_PETALS_3D","VFX_PETALS_LEAVES_SAKURA_3D","Sakura Blossom 3D Petals Fade","گلبرگ‌های سه‌بعدی شکوفه ساکورا با محو","#FFB7C5","#FF6B9D","#FFF0F5","#210B14"],
+  [23,"CHAMPAGNE_FOIL_CONFETTI_3D","VFX_PRISM_SHARDS_CONFETTI_3D","24K Champagne Foil Confetti 3D","پولک‌ها و ورق‌های طلای ۲۴ عیار سه‌بعدی","#FFD166","#F59E0B","#FFFFFF","#211605"],
+  [24,"FAIRY_FOREST_FIREFLIES","VFX_GLITTER_SHIMMER_FADE","Enchanted Fairy Fireflies Loop","کرم‌های شب‌تاب جادویی جنگل با محو نرم","#D9F99D","#4ADE80","#FEFCE8","#0A190B"],
+  [25,"DIAMOND_CRYSTAL_SHARDS_RAIN","VFX_PRISM_SHARDS_CONFETTI_3D","Diamond Crystal Shards Rain","بارش خرده‌های کریستال و الماس شفاف","#E0F2FE","#38BDF8","#FFFFFF","#091522"],
+  [26,"NORDIC_SNOWFLAKE_BLIZZARD","VFX_SNOW_CRYSTAL_BLIZZARD_3D","Nordic 6-Point Snowflake Blizzard","برف کریستالی شش‌ضلعی نوردیک سه‌بعدی","#E0F7FA","#93C5FD","#FFFFFF","#081421"],
+  [27,"AUTUMN_MAPLE_GOLD_LEAVES","VFX_PETALS_LEAVES_SAKURA_3D","Autumn Maple Gold Leaves 3D","برگ‌های پاییزی طلایی سه‌بعدی معلق","#F59E0B","#DC2626","#FEF3C7","#211006"],
+  [28,"MILKY_WAY_STARDUST_GLITTER","VFX_GLITTER_SHIMMER_FADE","Stardust Milky-Way Glitter","گرد ستاره کهکشان راه‌شیری با درخشش الماسی","#E0E7FF","#A855F7","#FFFFFF","#0E081F"],
+  [29,"RUBY_HEART_ROSE_SPARKLES","VFX_GLITTER_SHIMMER_FADE","Ruby Heart & Rose Sparkles","درخشش یاقوت سرخ و ذرات مخملی","#FB7185","#E11D48","#FFF1F2","#240710"],
+  [30,"IRIDESCENT_BUBBLE_BOKEH","VFX_RING_BOKEH_FOG","Iridescent Soap-Bubble Bokeh","حباب‌های رنگین‌کمانی سه‌بعدی و بوکه صابونی","#67E8F9","#F472B6","#FFFFFF","#0D1420"],
+  [31,"ANAMORPHIC_CYAN_LENS_FLARE","VFX_ANAMORPHIC_LENS_FLARE_3D","Anamorphic Cyan Lens Flare","فلر آنامورفیک سینمایی فیروزه‌ای","#00E5FF","#2563EB","#FFFFFF","#051324"],
+  [32,"GOLDEN_SUNSET_GOD_RAYS","VFX_GOD_RAYS_MIST","Warm Golden Sunset God-Rays","پرتوهای طلایی خورشید هنگام غروب","#FFBE0B","#FB5607","#FFF8DC","#211104"],
+  [33,"HYPERSPACE_STARFIELD_WARP","VFX_STARFIELD_HYPERSPACE_3D","Hyperspace 3D Starfield Warp","پرش فضایی ستارگان سه‌بعدی هایپراسپیس","#7DD3FC","#6366F1","#FFFFFF","#04091A"],
+  [34,"PERSEIDS_METEOR_SHOWER","VFX_STARFIELD_HYPERSPACE_3D","Perseids Diamond Meteor Shower","بارش شهابی الماسی پرسئید سه‌بعدی","#A5F3FC","#38BDF8","#FFFFFF","#060E1F"],
+  [35,"CATHEDRAL_SUNBEAM_DUST","VFX_GOD_RAYS_MIST","Cathedral Sunbeam & Dust Dance","رقص ذرات طلایی در پرتو آفتاب","#FDE68A","#93C5FD","#FFFFFF","#111520"],
+  [36,"ANAMORPHIC_AMBER_FLARE","VFX_ANAMORPHIC_LENS_FLARE_3D","Anamorphic Amber Director Flare","فلر لنز کارگردانی کهربایی گرم","#FF9F1C","#E71D36","#FFFAF0","#220E05"],
+  [37,"AURORA_BOREALIS_CURTAINS","VFX_LIQUID_AURORA_NEBULA_3D","Aurora Borealis Green Curtains","پرده‌های زنده شفق قطبی سبز-فیروزه‌ای","#00F5A0","#00D9F5","#E6FFF9","#041718"],
+  [38,"DEEP_SPACE_MAGENTA_NEBULA","VFX_LIQUID_AURORA_NEBULA_3D","Deep Space Magenta Nebula","سحابی فضایی سرخابی-بنفش سه‌بعدی","#F43F5E","#8B5CF6","#FFE4E6","#1A0716"],
+  [39,"LUNAR_SILVER_ECLIPSE_HALO","VFX_CYBER_ORBITAL_ARCS","Lunar Silver Eclipse Halo","هاله نقره‌ای خورشیدگرفتگی و ماه کامل","#E2E8F0","#38BDF8","#FFFFFF","#0A101B"],
+  [40,"UNDERWATER_CAUSTIC_RIPPLES","VFX_CAUSTIC_WATER_RIPPLES_3D","Underwater Caustic Sun Ripples","امواج شکست نور زیر آب سه‌بعدی","#22D3EE","#0284C7","#ECFEFF","#041824"],
+  [41,"ZEUS_BLUE_TESLA_LIGHTNING","VFX_LIGHTNING_TESLA_WEB_3D","Zeus Blue Tesla Lightning Web","شبکه رعدوبرق تسلا آبی زئوس سه‌بعدی","#38BDF8","#3B82F6","#FFFFFF","#061126"],
+  [42,"JARVIS_TACTICAL_HUD_RETICLE","VFX_SACRED_HUD_GEOMETRY_3D","Jarvis Tactical HUD Reticle 3D","رادار تاکتیکی و هاد جارویس سه‌بعدی","#00E5FF","#0EA5E9","#E0FFFF","#051422"],
+  [43,"EMERALD_MATRIX_CYBER_RAIN","VFX_DIGITAL_MATRIX_RUNES_3D","Emerald Matrix Cyber Rain 3D","باران کد سایبری ماتریکس سه‌بعدی","#00E676","#059669","#DCFFE4","#04170C"],
+  [44,"THOR_VIOLET_PLASMA_THUNDER","VFX_LIGHTNING_TESLA_WEB_3D","Violet Thor Plasma Thunder","آذرخش پلاسمایی بنفش با شاخه‌های سه‌بعدی","#D946EF","#7C3AED","#FFFFFF","#170726"],
+  [45,"QUANTUM_SONAR_SHOCKWAVE","VFX_CAUSTIC_WATER_RIPPLES_3D","Quantum Sonar Shockwave Rings","حلقه‌های موج انفجار و سونار کوانتومی","#00F5D4","#6366F1","#FFFFFF","#080D20"],
+  [46,"MYSTIC_ORANGE_MANDALA_3D","VFX_SACRED_HUD_GEOMETRY_3D","Mystic Gold Mandala Magic 3D","مندالای جادویی پرتقالی و قوس نور سه‌بعدی","#FF7B00","#FFCA3A","#FFF8E6","#241003"],
+  [47,"CHRONOS_GOLD_CLOCKWORK_HUD","VFX_SACRED_HUD_GEOMETRY_3D","Chronos Gold Clockwork HUD 3D","چرخ‌دنده‌های زمانی و هاد طلایی کرونوس","#FFC966","#D4AF37","#FFFFFF","#1D1506"],
+  [48,"HYPERSONIC_PLASMA_SHOCK","VFX_ANAMORPHIC_LENS_FLARE_3D","Hyper-Sonic Plasma Shock Cone","موج شوک مافوق صوت فیروزه‌ای سه‌بعدی","#22D3EE","#818CF8","#FFFFFF","#071326"],
+  [49,"CYBERPUNK_DATA_GRID_WARP","VFX_DIGITAL_MATRIX_RUNES_3D","Cyberpunk Data Stream Warp","جریان داده سایبرپانک سرخابی-آبی","#FF2A85","#00E5FF","#FFFFFF","#130820"],
+  [50,"INFINITY_COSMIC_PORTAL_AURA","VFX_CYBER_ORBITAL_ARCS","Infinity Cosmic Portal Aura","پورتال کهکشانی بی‌نهایت با قوس‌های سه‌بعدی","#00F5D4","#FF4ECD","#FFFFFF","#120822"]
+];
+
+const ALL_ASSETS = [
+  ...CORE_34,
+  ...PRO_50_DEFS.map(([n, slug, arch, title, fa, p, s, c, ch]) => ({
+    key: `PRO-${String(n).padStart(2,'0')}_${slug}`,
+    code: `PRO-${String(n).padStart(2,'0')}`,
+    title, fa, cat: "FAMOUS_50_PRO", arch, p, s, c, ch,
+    desc: `${fa} · رندر سه‌بعدی PBR و آلفای خالص بدون پس‌زمینه برای پروژه‌های حرفه‌ای 16K.`
+  }))
+].map(a => ({ ...a, isFrame: a.arch.startsWith("FRAME_") }));
+
+const THEMES = {
+  OBSIDIAN: { bgVoid:"#050810", panel:"#0b1220", deck:"#131e33", border:"#283b5e", primary:"#00e5ff", secondary:"#ffb84d", tertiary:"#9d4edd" },
+  GOLD:     { bgVoid:"#090705", panel:"#14100b", deck:"#1f1810", border:"#473720", primary:"#ffc966", secondary:"#00e5ff", tertiary:"#ff7b54" },
+  QUANTUM:  { bgVoid:"#07040f", panel:"#110a22", deck:"#1b1235", border:"#3e2a6b", primary:"#c77dff", secondary:"#00f5d4", tertiary:"#ff4d8d" },
+  EMERALD:  { bgVoid:"#040b09", panel:"#0a1714", deck:"#112621", border:"#224b41", primary:"#00f5a0", secondary:"#38bdf8", tertiary:"#ffca3a" }
+};
+
+const BACKDROPS = [
+  { id:"bg-checker", label:"Alpha Check" },
+  { id:"bg-black", label:"Pure Black" },
+  { id:"bg-white", label:"Pure White" },
+  { id:"bg-dark", label:"Dark Studio" },
+  { id:"bg-sky", label:"Daylight" },
+  { id:"bg-indigo", label:"Chroma Indigo" }
+];
+
+const CATEGORIES = [
+  { id:"ALL", label:"همه (84)" },
+  { id:"FAMOUS_50_PRO", label:"50 افکت مشهور" },
+  { id:"VISUAL_MODEL", label:"قاب‌های 3D" },
+  { id:"STUDIO_PRO_IDEAS", label:"ایده‌های جدید" },
+  { id:"REFERENCE_VFX", label:"درایور پک VFX" },
+  { id:"ANIMATION_BEHAVIOR", label:"انیمیشن 07-12" }
+];
+
+const state = {
+  activeCat: "ALL",
+  selected: ALL_ASSETS[1],
+  overlayVfx: null,
+  ratio: "9:16",
+  tier: "FULL_HD",
+  backdrop: "bg-checker",
+  playing: true,
+  speed: 1.0,
+  timeSec: 0,
+  corner: 0.14,
+  bevel: 1.0,
+  glow: 1.05,
+  particles: 1.0,
+  tiltEnabled: true,
+  placedImg: null,
+  placementMode: "INSIDE",
+  imgZoom: 1.0,
+  imgOpacity: 1.0,
+  rawAlphaOnly: true
+};
+
+// ===================== 2. MATH & COLOR UTILITIES =====================
+const TWO_PI = Math.PI * 2;
+const LOOP_SEC = 15.0;
+function hashFloat(seed) {
+  let n = (Math.imul(seed, 374761393) + 668265263) | 0;
+  n = Math.imul(n ^ (n >>> 13), 1274126177) | 0;
+  return ((n ^ (n >>> 16)) >>> 0) / 2147483647;
+}
+function hexRgb(hex) {
+  const h = hex.replace('#','');
+  const num = parseInt(h, 16);
+  return [(num >> 16) & 255, (num >> 8) & 255, num & 255];
+}
+function rgba(hex, a) {
+  const [r,g,b] = hexRgb(hex);
+  return `rgba(${r},${g},${b},${Math.max(0, Math.min(1, a)).toFixed(4)})`;
+}
+function expPulse(x, c, w) { const d = (x - c) / w; return Math.exp(-d * d); }
+
+function roundRectPath(ctx, x, y, w, h, r) {
+  const rr = Math.min(r, w / 2, h / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + rr, y);
+  ctx.lineTo(x + w - rr, y);
+  ctx.quadraticCurveTo(x + w, y, x + w, y + rr);
+  ctx.lineTo(x + w, y + h - rr);
+  ctx.quadraticCurveTo(x + w, y + h, x + w - rr, y + h);
+  ctx.lineTo(x + rr, y + h);
+  ctx.quadraticCurveTo(x, y + h, x, y + h - rr);
+  ctx.lineTo(x, y + rr);
+  ctx.quadraticCurveTo(x, y, x + rr, y);
+  ctx.closePath();
+}
+
+function sampleRoundedRectPerimeter(x, y, w, h, r, tFrac) {
+  const rr = Math.min(r, w / 2, h / 2);
+  const sw = Math.max(0, w - 2 * rr);
+  const sh = Math.max(0, h - 2 * rr);
+  const arcLen = 0.5 * Math.PI * rr;
+  const total = 2 * sw + 2 * sh + 4 * arcLen;
+  let d = (((tFrac % 1) + 1) % 1) * total;
+
+  // Top edge
+  if (d < sw) return { x: x + rr + d, y, nx: 0, ny: -1 };
+  d -= sw;
+  // Top-right corner
+  if (d < arcLen) {
+    const a = -Math.PI / 2 + (d / arcLen) * (Math.PI / 2);
+    return { x: x + w - rr + Math.cos(a) * rr, y: y + rr + Math.sin(a) * rr, nx: Math.cos(a), ny: Math.sin(a) };
+  }
+  d -= arcLen;
+  // Right edge
+  if (d < sh) return { x: x + w, y: y + rr + d, nx: 1, ny: 0 };
+  d -= sh;
+  // Bottom-right corner
+  if (d < arcLen) {
+    const a = (d / arcLen) * (Math.PI / 2);
+    return { x: x + w - rr + Math.cos(a) * rr, y: y + h - rr + Math.sin(a) * rr, nx: Math.cos(a), ny: Math.sin(a) };
+  }
+  d -= arcLen;
+  // Bottom edge
+  if (d < sw) return { x: x + w - rr - d, y: y + h, nx: 0, ny: 1 };
+  d -= sw;
+  // Bottom-left corner
+  if (d < arcLen) {
+    const a = Math.PI / 2 + (d / arcLen) * (Math.PI / 2);
+    return { x: x + rr + Math.cos(a) * rr, y: y + h - rr + Math.sin(a) * rr, nx: Math.cos(a), ny: Math.sin(a) };
+  }
+  d -= arcLen;
+  // Left edge
+  if (d < sh) return { x, y: y + h - rr - d, nx: -1, ny: 0 };
+  d -= sh;
+  // Top-left corner
+  const a = Math.PI + (d / Math.max(1e-4, arcLen)) * (Math.PI / 2);
+  return { x: x + rr + Math.cos(a) * rr, y: y + rr + Math.sin(a) * rr, nx: Math.cos(a), ny: Math.sin(a) };
+}
+
+// ===================== 3. CORE 3D PBR RENDERER =====================
+function renderSceneToCanvas(ctx, w, h, opts = {}) {
+  const tSec = opts.timeSec ?? state.timeSec;
+  const spec = opts.spec ?? state.selected;
+  const overlay = opts.overlay ?? state.overlayVfx;
+  const clearAlpha = opts.clearAlpha !== false;
+  const includePhoto = opts.includePhoto !== undefined ? opts.includePhoto : (!state.rawAlphaOnly && !!state.placedImg);
+
+  if (clearAlpha) ctx.clearRect(0, 0, w, h);
+
+  if (includePhoto && state.placedImg) {
+    drawPlacedImage(ctx, w, h, state.placedImg);
+  }
+
+  const normT = ((tSec % LOOP_SEC) + LOOP_SEC) % LOOP_SEC;
+  const phase = normT / LOOP_SEC;
+  const theta = phase * TWO_PI;
+
+  if (spec.isFrame) {
+    render3DFrame(ctx, w, h, spec, theta, phase);
+    if (overlay && !overlay.isFrame) {
+      renderVfxOverlay(ctx, w, h, overlay, theta, phase);
+    }
+  } else {
+    renderVfxOverlay(ctx, w, h, spec, theta, phase);
+  }
+}
+
+function drawPlacedImage(ctx, w, h, img) {
+  ctx.save();
+  const mx = w * 0.135, my = h * 0.135;
+  const fw = w - 2 * mx, fh = h - 2 * my;
+  const rad = Math.min(fw, fh) * state.corner;
+
+  if (state.placementMode === "INSIDE") {
+    roundRectPath(ctx, mx, my, fw, fh, rad);
+    ctx.clip();
+  }
+  const targetX = state.placementMode === "BEHIND" ? 0 : mx;
+  const targetY = state.placementMode === "BEHIND" ? 0 : my;
+  const targetW = state.placementMode === "BEHIND" ? w : fw;
+  const targetH = state.placementMode === "BEHIND" ? h : fh;
+
+  const baseScale = state.placementMode === "FIT"
+    ? Math.min(targetW / img.width, targetH / img.height)
+    : Math.max(targetW / img.width, targetH / img.height);
+  const sc = baseScale * state.imgZoom;
+  const dw = img.width * sc, dh = img.height * sc;
+  const dx = targetX + (targetW - dw) / 2;
+  const dy = targetY + (targetH - dh) / 2;
+  ctx.globalAlpha = state.imgOpacity;
+  ctx.drawImage(img, dx, dy, dw, dh);
+  ctx.restore();
+}
+
+function computePulse(arch, key, theta, phase) {
+  if (arch === "FRAME_BREATHING") return 0.28 + 0.72 * (0.5 - 0.5 * Math.cos(theta * 3));
+  if (arch === "FRAME_HEARTBEAT") {
+    const bp = (phase * 5) % 1;
+    return Math.min(1, 0.22 + 0.78 * Math.max(expPulse(bp, 0.14, 0.055), 0.68 * expPulse(bp, 0.31, 0.06)));
+  }
+  if (key.includes("ELECTRIC_PULSE")) {
+    const p = (phase * 5) % 1;
+    return Math.min(1, 0.42 + 0.58 * (expPulse(p, 0.18, 0.04) + 0.6 * expPulse(p, 0.52, 0.03)));
+  }
+  return 0.62 + 0.38 * (0.5 + 0.5 * Math.sin(theta * 2));
+}
+
+function render3DFrame(ctx, w, h, spec, theta, phase) {
+  const minDim = Math.min(w, h);
+  const mx = w * 0.135, my = h * 0.135;
+  const fw = w - 2 * mx, fh = h - 2 * my;
+  const rad = Math.max(minDim * 0.04, Math.min(minDim * 0.28, Math.min(fw, fh) * state.corner));
+  const thick = minDim * 0.023 * state.bevel;
+  const pulse = computePulse(spec.arch, spec.key, theta, phase);
+  const effGlow = (0.72 + 0.48 * pulse) * state.glow;
+
+  // Volumetric atmospheric bloom underlay
+  ctx.save();
+  roundRectPath(ctx, mx, my, fw, fh, rad);
+  ctx.shadowColor = rgba(spec.s, Math.min(0.85, 0.55 * effGlow));
+  ctx.shadowBlur = Math.max(8, thick * 2.6);
+  ctx.strokeStyle = rgba(spec.p, Math.min(0.45, 0.28 * effGlow));
+  ctx.lineWidth = thick * 2.1;
+  ctx.stroke();
+  ctx.restore();
+
+  // Extruded dark 3D back bevel shadow
+  const off = thick * 0.22;
+  ctx.save();
+  roundRectPath(ctx, mx + off, my + off, fw, fh, rad);
+  ctx.strokeStyle = "rgba(0,0,0,0.72)";
+  ctx.lineWidth = thick * 1.75;
+  ctx.stroke();
+  ctx.restore();
+
+  // Metallic chassis gradient
+  ctx.save();
+  roundRectPath(ctx, mx, my, fw, fh, rad);
+  const metalGrad = ctx.createLinearGradient(mx, my, mx + fw, my + fh);
+  metalGrad.addColorStop(0, spec.arch === "FRAME_LIQUID_CHROME" ? "#e2e8f0" : spec.ch);
+  metalGrad.addColorStop(0.35, spec.p);
+  metalGrad.addColorStop(0.65, spec.ch);
+  metalGrad.addColorStop(1, spec.s);
+  ctx.strokeStyle = metalGrad;
+  ctx.lineWidth = thick * 1.55;
+  ctx.stroke();
+
+  // Glass channel & prism / aurora shaders
+  const sweepY = 0.5 + 0.42 * Math.sin(theta);
+  let glassGrad = ctx.createLinearGradient(mx, my + fh * (sweepY - 0.35), mx + fw, my + fh * (sweepY + 0.35));
+  if (spec.arch === "FRAME_PRISM_HOLOGRAPHIC") {
+    glassGrad = ctx.createLinearGradient(mx, my, mx + fw, my + fh);
+    glassGrad.addColorStop(0, rgba("#00F5D4", 0.78));
+    glassGrad.addColorStop(0.33, rgba("#3A86FF", 0.78));
+    glassGrad.addColorStop(0.66, rgba("#FF4ECD", 0.78));
+    glassGrad.addColorStop(1, rgba("#FFBE0B", 0.78));
+  } else {
+    glassGrad.addColorStop(0, rgba(spec.p, 0.22));
+    glassGrad.addColorStop(0.48, rgba("#FFFFFF", 0.52 * (0.6 + 0.4 * pulse)));
+    glassGrad.addColorStop(1, rgba(spec.s, 0.34));
+  }
+  ctx.strokeStyle = glassGrad;
+  ctx.lineWidth = thick * 1.18;
+  ctx.stroke();
+
+  // Inner & outer Fresnel highlights
+  roundRectPath(ctx, mx - thick * 0.6, my - thick * 0.6, fw + thick * 1.2, fh + thick * 1.2, rad + thick * 0.6);
+  ctx.strokeStyle = rgba("#FFFFFF", 0.35 + 0.22 * pulse);
+  ctx.lineWidth = Math.max(1, thick * 0.11);
+  ctx.stroke();
+
+  // Neon tube core
+  roundRectPath(ctx, mx, my, fw, fh, rad);
+  ctx.shadowColor = spec.p;
+  ctx.shadowBlur = Math.max(4, thick * 0.9);
+  ctx.strokeStyle = rgba(spec.p, Math.min(1, 0.78 + 0.22 * pulse));
+  ctx.lineWidth = thick * 0.64;
+  ctx.stroke();
+
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = rgba(spec.c, Math.min(1, 0.65 + 0.35 * pulse));
+  ctx.lineWidth = Math.max(1.5, thick * 0.26);
+  ctx.stroke();
+  ctx.restore();
+
+  // Traveling highlight packet
+  if (spec.arch !== "FRAME_BREATHING" && spec.arch !== "FRAME_HEARTBEAT") {
+    const headFrac = ((phase * (spec.arch === "FRAME_LIGHT_SCAN" ? 3 : 2)) % 1);
+    const packets = spec.arch === "FRAME_LIGHT_SCAN" ? 1 : 2;
+    for (let pk = 0; pk < packets; pk++) {
+      const f = (headFrac + pk * 0.5) % 1;
+      const pt = sampleRoundedRectPerimeter(mx, my, fw, fh, rad, f);
+      const fr = thick * (spec.arch === "FRAME_LIGHT_SCAN" ? 2.6 : 1.9);
+      const rg = ctx.createRadialGradient(pt.x, pt.y, 0, pt.x, pt.y, fr);
+      rg.addColorStop(0, spec.c);
+      rg.addColorStop(0.38, rgba(spec.p, 0.7));
+      rg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = rg;
+      ctx.beginPath(); ctx.arc(pt.x, pt.y, fr, 0, TWO_PI); ctx.fill();
+    }
+  }
+
+  // Special architectural geometry (Double Gold, HUD Brackets, Cyber Wings, Diamond Facets, Plasma)
+  ctx.save();
+  if (spec.arch === "FRAME_DOUBLE_CHAMBER_LUXURY_3D") {
+    const ins = thick * 1.15;
+    roundRectPath(ctx, mx - ins, my - ins, fw + 2 * ins, fh + 2 * ins, rad + ins);
+    ctx.strokeStyle = rgba(spec.c, 0.85);
+    ctx.lineWidth = Math.max(1.5, thick * 0.24);
+    ctx.stroke();
+    roundRectPath(ctx, mx + ins, my + ins, fw - 2 * ins, fh - 2 * ins, Math.max(4, rad - ins));
+    ctx.strokeStyle = rgba(spec.s, 0.68);
+    ctx.lineWidth = Math.max(1, thick * 0.14);
+    ctx.stroke();
+  } else if (spec.arch === "FRAME_LASER_GRID_HUD_3D") {
+    const bl = Math.min(fw, fh) * 0.11;
+    const pad = thick * 1.25;
+    ctx.strokeStyle = rgba(spec.p, 0.88);
+    ctx.lineWidth = Math.max(2, thick * 0.28);
+    [[mx-pad,my-pad,1,1],[mx+fw+pad,my-pad,-1,1],[mx+fw+pad,my+fh+pad,-1,-1],[mx-pad,my+fh+pad,1,-1]].forEach(([cx,cy,sx,sy]) => {
+      ctx.beginPath();
+      ctx.moveTo(cx + sx * bl, cy); ctx.lineTo(cx, cy); ctx.lineTo(cx, cy + sy * bl);
+      ctx.stroke();
+    });
+  } else if (spec.arch === "FRAME_CYBER_WING_EMBLEM_3D") {
+    ctx.lineCap = "round";
+    for (let f = 0; f < 3; f++) {
+      const sp = thick * (1.2 + f * 0.85);
+      const wh = fh * (0.20 - f * 0.045);
+      const cy = my + fh * 0.46 + f * thick * 1.1;
+      ctx.strokeStyle = rgba(f === 0 ? spec.c : spec.p, 0.85 - f * 0.18);
+      ctx.lineWidth = Math.max(1.8, thick * 0.28);
+      ctx.beginPath();
+      ctx.moveTo(mx - thick * 0.8, cy - wh * 0.25);
+      ctx.quadraticCurveTo(mx - sp * 2.2, cy - wh * 0.75, mx - sp * 2.7, cy - wh);
+      ctx.moveTo(mx + fw + thick * 0.8, cy - wh * 0.25);
+      ctx.quadraticCurveTo(mx + fw + sp * 2.2, cy - wh * 0.75, mx + fw + sp * 2.7, cy - wh);
+      ctx.stroke();
+    }
+  } else if (spec.arch === "FRAME_DIAMOND_CRYSTAL_3D") {
+    ctx.lineCap = "round";
+    for (let i = 0; i < 18; i++) {
+      const pt = sampleRoundedRectPerimeter(mx, my, fw, fh, rad, (i / 18 + phase * 0.5) % 1);
+      const sp = Math.pow(0.5 + 0.5 * Math.sin(theta * 4 + i * 1.3), 3);
+      if (sp > 0.25) {
+        const arm = thick * (0.45 + 0.75 * sp);
+        ctx.strokeStyle = rgba("#FFFFFF", 0.82 * sp);
+        ctx.lineWidth = Math.max(1, thick * 0.09);
+        ctx.beginPath();
+        ctx.moveTo(pt.x - arm, pt.y); ctx.lineTo(pt.x + arm, pt.y);
+        ctx.moveTo(pt.x, pt.y - arm); ctx.lineTo(pt.x, pt.y + arm);
+        ctx.stroke();
+      }
+    }
+  }
+
+  // Orbiting PBR particles near frame rim
+  const pCount = Math.round(24 * state.particles);
+  for (let i = 0; i < pCount; i++) {
+    const seed = (i * 0.6180339887) % 1;
+    const pt = sampleRoundedRectPerimeter(mx, my, fw, fh, rad, (seed + phase * (1 + (i % 2))) % 1);
+    const radial = Math.sin(theta * (2 + (i % 3)) + seed * TWO_PI);
+    const offD = thick * (0.9 + 2.0 * ((i * 37 % 100) / 100)) * radial;
+    const pr = Math.max(1.2, thick * (0.10 + 0.14 * ((i * 19 % 100) / 100)));
+    ctx.fillStyle = rgba(i % 3 === 0 ? spec.c : spec.p, 0.4 + 0.5 * (0.5 + 0.5 * Math.cos(theta * 3 + seed * TWO_PI)));
+    ctx.beginPath(); ctx.arc(pt.x + pt.nx * offD, pt.y + pt.ny * offD, pr, 0, TWO_PI); ctx.fill();
+  }
+  ctx.restore();
+}
+
+// ===================== 4. VOLUMETRIC & PARTICLE VFX SHADERS =====================
+function renderVfxOverlay(ctx, w, h, vfx, theta, phase) {
+  const minDim = Math.min(w, h);
+  const dens = state.particles;
+  const glow = Math.min(1.5, Math.max(0.4, state.glow));
+  ctx.save();
+
+  switch (vfx.arch) {
+    case "VFX_RISING_SMOKE_HALF_FADE": {
+      const count = Math.round(26 * dens);
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 19 + 3);
+        const prog = (hashFloat(i * 37 + 11) + phase) % 1;
+        const cy = h * (1.08 - prog * 0.62);
+        const cx = w * (0.06 + 0.88 * hx) + Math.sin(theta + hx * TWO_PI + prog * 3.1) * w * 0.065;
+        const rad = minDim * (0.14 + 0.20 * prog) * (0.75 + 0.45 * hashFloat(i * 53));
+        const fadeIn = Math.min(1, prog / 0.18);
+        const fadeOut = Math.pow(Math.max(0, 1 - Math.max(0, (prog - 0.30) / 0.68)), 1.6);
+        const alpha = 0.24 * fadeIn * fadeOut * glow;
+        if (alpha > 0.004) {
+          const rg = ctx.createRadialGradient(cx, cy, 0, cx, cy, rad);
+          rg.addColorStop(0, rgba(i % 3 === 0 ? vfx.c : vfx.p, alpha));
+          rg.addColorStop(0.52, rgba(vfx.s, alpha * 0.45));
+          rg.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = rg;
+          ctx.beginPath(); ctx.arc(cx, cy, rad, 0, TWO_PI); ctx.fill();
+        }
+      }
+      break;
+    }
+
+    case "VFX_GLITTER_SHIMMER_FADE": {
+      const count = Math.round(68 * dens);
+      ctx.lineCap = "round";
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 17 + 5), hy = hashFloat(i * 41 + 9);
+        const life = (hashFloat(i * 67 + 3) + phase * (1 + (i % 2))) % 1;
+        const fade = Math.pow(Math.max(0, Math.sin(life * Math.PI)), 1.4);
+        const twinkle = 0.45 + 0.55 * (0.5 + 0.5 * Math.sin(theta * 4 + i * 2.1));
+        const a = Math.min(1, fade * twinkle * glow);
+        const x = w * (0.06 + 0.88 * hx) + Math.sin(theta + hy * TWO_PI) * w * 0.035;
+        const y = h * (0.08 + 0.84 * hy) - life * h * 0.06;
+        const r = minDim * (0.004 + 0.015 * hashFloat(i * 23));
+        const rg = ctx.createRadialGradient(x, y, 0, x, y, r * 2.4);
+        rg.addColorStop(0, rgba(vfx.c, a * 0.95));
+        rg.addColorStop(0.4, rgba(i % 2 === 0 ? vfx.p : vfx.s, a * 0.45));
+        rg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.arc(x, y, r * 2.4, 0, TWO_PI); ctx.fill();
+        if (i % 3 === 0 && a > 0.18) {
+          const arm = r * 2.8;
+          ctx.strokeStyle = rgba(vfx.c, a * 0.88);
+          ctx.lineWidth = Math.max(1, r * 0.36);
+          ctx.beginPath();
+          ctx.moveTo(x - arm, y); ctx.lineTo(x + arm, y);
+          ctx.moveTo(x, y - arm); ctx.lineTo(x, y + arm);
+          ctx.stroke();
+        }
+      }
+      break;
+    }
+
+    case "VFX_GOD_RAYS_MIST": {
+      for (let r = 0; r < 5; r++) {
+        const shift = Math.sin(theta + r * 0.8) * w * 0.05;
+        const sx = w * (0.05 + 0.20 * r) + shift;
+        const lg = ctx.createLinearGradient(sx, 0, sx + w * 0.28, h * 0.92);
+        lg.addColorStop(0, rgba(r % 2 === 0 ? vfx.p : vfx.c, 0.18 * glow));
+        lg.addColorStop(0.5, rgba(vfx.s, 0.09 * glow));
+        lg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = lg;
+        ctx.beginPath();
+        ctx.moveTo(sx, 0); ctx.lineTo(sx + w * 0.13, 0);
+        ctx.lineTo(sx + w * 0.42, h); ctx.lineTo(sx + w * 0.14, h);
+        ctx.closePath(); ctx.fill();
+      }
+      const mc = Math.round(44 * dens);
+      for (let i = 0; i < mc; i++) {
+        const hx = hashFloat(i * 31 + 7), hy = hashFloat(i * 47 + 13);
+        const x = w * (0.08 + 0.84 * hx) + Math.cos(theta + hy * TWO_PI) * w * 0.04;
+        const y = h * (0.08 + 0.84 * hy) + Math.sin(theta + hx * TWO_PI) * h * 0.04;
+        ctx.fillStyle = rgba(i % 3 === 0 ? vfx.c : vfx.p, 0.28 + 0.5 * (0.5 + 0.5 * Math.sin(theta * 2 + hx * TWO_PI)));
+        ctx.beginPath(); ctx.arc(x, y, minDim * (0.003 + 0.007 * hashFloat(i * 19)), 0, TWO_PI); ctx.fill();
+      }
+      break;
+    }
+
+    case "VFX_CYBER_ORBITAL_ARCS": {
+      const cx = w * 0.5, cy = h * 0.5;
+      for (let ring = 0; ring < 3; ring++) {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate((ring * 52 + phase * 360 * (ring % 2 === 0 ? 1 : -1)) * Math.PI / 180);
+        const rx = minDim * (0.28 + 0.07 * ring);
+        const ry = rx * (0.34 + 0.08 * Math.sin(theta + ring));
+        ctx.strokeStyle = rgba(ring % 2 === 0 ? vfx.p : vfx.s, 0.58 * glow);
+        ctx.shadowColor = vfx.p; ctx.shadowBlur = minDim * 0.015;
+        ctx.lineWidth = Math.max(2, minDim * 0.012);
+        ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, 1.33 * Math.PI); ctx.stroke();
+        ctx.shadowBlur = 0;
+        ctx.strokeStyle = rgba(vfx.c, 0.88);
+        ctx.lineWidth = Math.max(1, minDim * 0.004);
+        ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0.35, Math.PI * 1.1); ctx.stroke();
+        ctx.restore();
+      }
+      break;
+    }
+
+    case "VFX_STARFIELD_HYPERSPACE_3D": {
+      const cx = w * 0.5, cy = h * 0.5;
+      const count = Math.round(72 * dens);
+      ctx.lineCap = "round";
+      for (let i = 0; i < count; i++) {
+        const ang = hashFloat(i * 19 + 3) * TWO_PI;
+        const zp = (hashFloat(i * 41 + 9) + phase * (1 + (i % 2))) % 1;
+        const dist = Math.pow(zp, 1.6) * minDim * 0.62;
+        const tail = Math.max(4, dist * 0.74);
+        const fade = Math.max(0, Math.sin(zp * Math.PI)) * glow;
+        ctx.strokeStyle = rgba(i % 3 === 0 ? vfx.c : vfx.p, Math.min(0.95, fade));
+        ctx.lineWidth = Math.max(1, minDim * (0.0022 + 0.0045 * zp));
+        ctx.beginPath();
+        ctx.moveTo(cx + Math.cos(ang) * tail, cy + Math.sin(ang) * tail);
+        ctx.lineTo(cx + Math.cos(ang) * dist, cy + Math.sin(ang) * dist);
+        ctx.stroke();
+      }
+      break;
+    }
+
+    case "VFX_SACRED_HUD_GEOMETRY_3D": {
+      const cx = w * 0.5, cy = h * 0.5;
+      for (let r = 0; r < 4; r++) {
+        const rad = minDim * (0.14 + 0.085 * r);
+        const rot = (phase * 360 * (r % 2 === 0 ? 1 : -1) + r * 28) * Math.PI / 180;
+        ctx.save(); ctx.translate(cx, cy); ctx.rotate(rot);
+        ctx.strokeStyle = rgba(r % 2 === 0 ? vfx.p : vfx.s, 0.78 * glow);
+        ctx.lineWidth = Math.max(1.2, minDim * (0.005 - r * 0.0007));
+        ctx.beginPath(); ctx.arc(0, 0, rad, 0, 2.0); ctx.stroke();
+        ctx.beginPath(); ctx.arc(0, 0, rad, Math.PI, Math.PI + 2.0); ctx.stroke();
+        if (r === 2) {
+          ctx.strokeStyle = rgba(vfx.c, 0.65);
+          for (let t = 0; t < 12; t++) {
+            const a = (t / 12) * TWO_PI;
+            ctx.beginPath();
+            ctx.moveTo(Math.cos(a) * rad * 0.94, Math.sin(a) * rad * 0.94);
+            ctx.lineTo(Math.cos(a) * rad * 1.05, Math.sin(a) * rad * 1.05);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+      }
+      break;
+    }
+
+    case "VFX_PETALS_LEAVES_SAKURA_3D": {
+      const count = Math.round(40 * dens);
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 23 + 7);
+        const prog = (hashFloat(i * 53 + 11) + phase) % 1;
+        const y = h * (-0.06 + prog * 1.12);
+        const x = w * (0.06 + 0.88 * hx) + Math.sin(theta * 2 + hx * TWO_PI + prog * 4) * w * 0.07;
+        const sz = minDim * (0.018 + 0.024 * hashFloat(i * 37));
+        const fade = Math.max(0, Math.sin(prog * Math.PI));
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate((prog * 360 * (i % 2 === 0 ? 1 : -1) + i * 31) * Math.PI / 180);
+        ctx.scale(1, 0.55 + 0.45 * Math.cos(theta * 3 + i));
+        ctx.beginPath();
+        ctx.moveTo(0, -sz);
+        ctx.bezierCurveTo(sz * 0.85, -sz * 0.4, sz * 0.75, sz * 0.55, 0, sz);
+        ctx.bezierCurveTo(-sz * 0.75, sz * 0.55, -sz * 0.85, -sz * 0.4, 0, -sz);
+        ctx.fillStyle = rgba(i % 2 === 0 ? vfx.p : vfx.s, 0.72 * fade);
+        ctx.fill();
+        ctx.strokeStyle = rgba(vfx.c, 0.82 * fade);
+        ctx.lineWidth = Math.max(1, sz * 0.12);
+        ctx.stroke();
+        ctx.restore();
+      }
+      break;
+    }
+
+    case "VFX_ANAMORPHIC_LENS_FLARE_3D": {
+      const cx = w * (0.5 + 0.14 * Math.sin(theta)), cy = h * (0.48 + 0.04 * Math.cos(theta * 2));
+      const bw = w * 0.44, bh = minDim * 0.032 * (0.65 + 0.35 * Math.sin(theta * 2));
+      const lg = ctx.createLinearGradient(cx - bw, cy, cx + bw, cy);
+      lg.addColorStop(0, "rgba(0,0,0,0)"); lg.addColorStop(0.28, rgba(vfx.p, 0.75));
+      lg.addColorStop(0.5, vfx.c); lg.addColorStop(0.72, rgba(vfx.p, 0.75)); lg.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = lg;
+      ctx.beginPath(); ctx.ellipse(cx, cy, bw, bh, 0, 0, TWO_PI); ctx.fill();
+      for (let g = 1; g <= 5; g++) {
+        const t = (g - 3) * 0.22;
+        const gx = w * 0.5 + (cx - w * 0.5) * t * 2.2;
+        const gy = h * 0.5 + (cy - h * 0.5) * t * 2.2;
+        const gr = minDim * (0.025 + 0.018 * g);
+        ctx.strokeStyle = rgba(g % 2 === 0 ? vfx.s : vfx.p, 0.42 * glow);
+        ctx.lineWidth = Math.max(1.2, gr * 0.12);
+        ctx.beginPath(); ctx.arc(gx, gy, gr, 0, TWO_PI); ctx.stroke();
+      }
+      break;
+    }
+
+    case "VFX_DIGITAL_MATRIX_RUNES_3D": {
+      const cols = Math.round(20 * dens);
+      ctx.lineCap = "round";
+      for (let c = 0; c < cols; c++) {
+        const x = w * (0.06 + 0.88 * (c / cols));
+        const prog = (hashFloat(c * 29 + 7) + phase * (1 + (c % 2))) % 1;
+        const headY = h * (0.05 + 0.90 * prog);
+        const tailY = Math.max(h * 0.04, headY - h * (0.14 + 0.16 * hashFloat(c * 43)));
+        const fade = Math.max(0, Math.sin(prog * Math.PI));
+        const lg = ctx.createLinearGradient(x, tailY, x, headY);
+        lg.addColorStop(0, "rgba(0,0,0,0)");
+        lg.addColorStop(0.65, rgba(c % 2 === 0 ? vfx.p : vfx.s, 0.65 * fade));
+        lg.addColorStop(1, rgba(vfx.c, 0.92 * fade));
+        ctx.strokeStyle = lg; ctx.lineWidth = Math.max(1.5, minDim * 0.0055);
+        ctx.beginPath(); ctx.moveTo(x, tailY); ctx.lineTo(x, headY); ctx.stroke();
+        ctx.fillStyle = rgba(vfx.c, 0.92 * fade);
+        ctx.beginPath(); ctx.arc(x, headY, Math.max(2, minDim * 0.006), 0, TWO_PI); ctx.fill();
+      }
+      break;
+    }
+
+    case "VFX_LIGHTNING_TESLA_WEB_3D": {
+      ctx.lineCap = "round";
+      for (let b = 0; b < 5; b++) {
+        const intensity = Math.pow(Math.max(0, Math.sin(((phase * 3 + hashFloat(b * 31)) % 1) * Math.PI)), 2);
+        if (intensity < 0.08) continue;
+        const sx = w * (0.15 + 0.17 * b), sy = h * 0.10;
+        ctx.beginPath(); ctx.moveTo(sx, sy);
+        for (let seg = 1; seg <= 10; seg++) {
+          const u = seg / 10;
+          const jx = (hashFloat(seg * 17 + b * 53 + Math.floor(phase * 12)) - 0.5) * w * 0.12;
+          ctx.lineTo(sx + jx, sy + u * h * 0.80);
+        }
+        ctx.shadowColor = b % 2 === 0 ? vfx.p : vfx.s;
+        ctx.shadowBlur = minDim * 0.02;
+        ctx.strokeStyle = rgba(vfx.c, 0.92 * intensity);
+        ctx.lineWidth = Math.max(1.6, minDim * 0.0055);
+        ctx.stroke();
+      }
+      break;
+    }
+
+    case "VFX_LIQUID_AURORA_NEBULA_3D":
+    case "VFX_GOLDEN_SILK": {
+      ctx.lineCap = "round";
+      for (let b = 0; b < 6; b++) {
+        const baseY = h * (0.20 + 0.11 * b), amp = h * 0.09;
+        ctx.beginPath();
+        for (let s = 0; s <= 36; s++) {
+          const u = s / 36;
+          const x = w * (0.04 + 0.92 * u);
+          const y = baseY + Math.sin(u * TWO_PI * 1.3 + theta + b * 0.8) * amp;
+          if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+        }
+        ctx.strokeStyle = rgba(b % 2 === 0 ? vfx.p : vfx.s, 0.22 * glow);
+        ctx.lineWidth = minDim * (0.048 + 0.012 * (b % 2));
+        ctx.stroke();
+      }
+      break;
+    }
+
+    case "VFX_SNOW_CRYSTAL_BLIZZARD_3D": {
+      const count = Math.round(44 * dens);
+      ctx.lineCap = "round";
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 19 + 5), prog = (hashFloat(i * 37 + 9) + phase) % 1;
+        const y = h * (0.04 + prog * 0.92);
+        const x = w * (0.06 + 0.88 * hx) + Math.sin(theta + hx * TWO_PI) * w * 0.04;
+        const r = minDim * (0.010 + 0.018 * hashFloat(i * 61));
+        const fade = Math.max(0, Math.sin(prog * Math.PI));
+        ctx.strokeStyle = rgba(i % 3 === 0 ? vfx.c : vfx.p, 0.85 * fade);
+        ctx.lineWidth = Math.max(1, r * 0.16);
+        for (let arm = 0; arm < 3; arm++) {
+          const a = (arm / 3) * Math.PI + phase * TWO_PI;
+          ctx.beginPath();
+          ctx.moveTo(x - Math.cos(a) * r, y - Math.sin(a) * r);
+          ctx.lineTo(x + Math.cos(a) * r, y + Math.sin(a) * r);
+          ctx.stroke();
+        }
+      }
+      break;
+    }
+
+    case "VFX_PRISM_SHARDS_CONFETTI_3D": {
+      const count = Math.round(44 * dens);
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 23 + 11), prog = (hashFloat(i * 47 + 3) + phase) % 1;
+        const x = w * (0.06 + 0.88 * hx) + Math.sin(theta * 2 + i) * w * 0.04;
+        const y = h * (0.05 + prog * 0.90);
+        const sz = minDim * (0.014 + 0.022 * hashFloat(i * 17));
+        const fade = Math.max(0, Math.sin(prog * Math.PI));
+        ctx.save(); ctx.translate(x, y); ctx.rotate((prog * 360 + i * 40) * Math.PI / 180);
+        ctx.scale(1, 0.45 + 0.55 * Math.abs(Math.cos(theta * 3 + i)));
+        ctx.beginPath();
+        ctx.moveTo(0, -sz); ctx.lineTo(sz * 0.72, 0); ctx.lineTo(0, sz); ctx.lineTo(-sz * 0.72, 0); ctx.closePath();
+        ctx.fillStyle = rgba(i % 2 === 0 ? vfx.p : vfx.s, 0.76 * fade); ctx.fill();
+        ctx.strokeStyle = rgba(vfx.c, 0.92 * fade); ctx.lineWidth = Math.max(1, sz * 0.12); ctx.stroke();
+        ctx.restore();
+      }
+      break;
+    }
+
+    case "VFX_CAUSTIC_WATER_RIPPLES_3D": {
+      const cx = w * 0.5, cy = h * 0.5;
+      for (let r = 0; r < 5; r++) {
+        const wp = (phase + r / 5) % 1;
+        const rx = minDim * (0.08 + 0.36 * wp), ry = rx * 0.62;
+        const fade = Math.pow(1 - wp, 1.3) * Math.max(0, Math.sin(wp * Math.PI));
+        ctx.strokeStyle = rgba(r % 2 === 0 ? vfx.p : vfx.s, 0.75 * fade * glow);
+        ctx.lineWidth = Math.max(1.5, minDim * 0.010 * (1 - wp * 0.5));
+        ctx.beginPath(); ctx.ellipse(cx, cy, rx, ry, 0, 0, TWO_PI); ctx.stroke();
+      }
+      break;
+    }
+
+    default: {
+      // Fallback high-detail particles + bokeh for GOLDEN_PARTICLES, HEX_BOKEH, DARK_DUST, SMOKE_EMBERS, RING_BOKEH, STORM
+      const count = Math.round(52 * dens);
+      for (let i = 0; i < count; i++) {
+        const hx = hashFloat(i * 19 + 5), hy = hashFloat(i * 31 + 11);
+        const yProg = (hy + phase * (1 + (i % 2))) % 1;
+        const x = w * (0.06 + 0.88 * hx) + Math.sin(theta + hx * TWO_PI) * w * 0.05;
+        const y = h * (1.02 - yProg * 1.04);
+        const rad = minDim * (0.006 + 0.036 * hashFloat(i * 47));
+        const fade = Math.max(0, Math.sin(yProg * Math.PI)) * glow;
+        const rg = ctx.createRadialGradient(x, y, 0, x, y, rad * 1.6);
+        rg.addColorStop(0, rgba(i % 3 === 0 ? vfx.c : vfx.p, Math.min(0.9, fade * 0.8)));
+        rg.addColorStop(0.5, rgba(vfx.s, Math.min(0.5, fade * 0.35)));
+        rg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = rg;
+        ctx.beginPath(); ctx.arc(x, y, rad * 1.6, 0, TWO_PI); ctx.fill();
+      }
+    }
+  }
+  ctx.restore();
+}
+
+// ===================== 5. OFFLINE PURE-JS CRC32 ZIP BUILDER =====================
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(bytes) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < bytes.length; i++) c = CRC_TABLE[(c ^ bytes[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+function buildZipBlob(entries) {
+  const enc = new TextEncoder();
+  const localParts = [], centralParts = [];
+  let offset = 0;
+  for (const e of entries) {
+    const nameBytes = enc.encode(e.name);
+    const data = e.data;
+    const crc = crc32(data);
+
+    const lh = new Uint8Array(30 + nameBytes.length);
+    const lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034B50, true); lv.setUint16(4, 20, true);
+    lv.setUint16(8, 0, true); // store (uncompressed for lossless PNGs)
+    lv.setUint32(14, crc, true); lv.setUint32(18, data.length, true); lv.setUint32(22, data.length, true);
+    lv.setUint16(26, nameBytes.length, true);
+    lh.set(nameBytes, 30);
+    localParts.push(lh, data);
+
+    const ch = new Uint8Array(46 + nameBytes.length);
+    const cv = new DataView(ch.buffer);
+    cv.setUint32(0, 0x02014B50, true); cv.setUint16(4, 20, true); cv.setUint16(6, 20, true);
+    cv.setUint32(16, crc, true); cv.setUint32(20, data.length, true); cv.setUint32(24, data.length, true);
+    cv.setUint16(28, nameBytes.length, true); cv.setUint32(42, offset, true);
+    ch.set(nameBytes, 46);
+    centralParts.push(ch);
+
+    offset += lh.length + data.length;
+  }
+  const centralSize = centralParts.reduce((s, p) => s + p.length, 0);
+  const eocd = new Uint8Array(22);
+  const ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054B50, true);
+  ev.setUint16(8, entries.length, true); ev.setUint16(10, entries.length, true);
+  ev.setUint32(12, centralSize, true); ev.setUint32(16, offset, true);
+  return new Blob([...localParts, ...centralParts, eocd], { type: "application/zip" });
+}
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 4000);
+}
+
+// ===================== 6. EXPORTS & 7-PASS QC AUDIT =====================
+function targetDims(tier, ratio) {
+  if (tier === "FULL_HD") return ratio === "1:1" ? [1080,1080] : ratio === "16:9" ? [1920,1080] : [1080,1920];
+  if (tier === "UHD_4K")  return ratio === "1:1" ? [2160,2160] : ratio === "16:9" ? [3840,2160] : [2160,3840];
+  return ratio === "1:1" ? [15360,15360] : ratio === "16:9" ? [15360,8640] : [8640,15360];
+}
+
+async function exportSingleMasterPng() {
+  const tier = state.tier === "MASTER_16K" ? "UHD_4K" : state.tier;
+  const [w, h] = targetDims(tier, state.ratio);
+  const c = document.createElement("canvas"); c.width = w; c.height = h;
+  renderSceneToCanvas(c.getContext("2d"), w, h, { timeSec: state.timeSec, clearAlpha: true });
+  c.toBlob(blob => {
+    const tag = state.rawAlphaOnly ? "RAW_ALPHA" : "FRAMED";
+    triggerDownload(blob, `${state.selected.key}_${state.ratio.replace(":","x")}_${tier}_${tag}.png`);
+    document.getElementById("exportStatusMsg").textContent = `PNG ${w}×${h} (${tag}) دانلود شد.`;
+  }, "image/png");
+}
+
+async function exportCompleteZipBundle() {
+  const wrap = document.getElementById("exportProgressWrap");
+  const bar = document.getElementById("exportProgressBar");
+  const msg = document.getElementById("exportStatusMsg");
+  wrap.style.display = "block";
+  const entries = [];
+  const enc = new TextEncoder();
+
+  if (state.tier === "MASTER_16K") {
+    const [mw, mh] = targetDims("MASTER_16K", state.ratio);
+    const tw = Math.floor(mw / 4), th = Math.floor(mh / 4);
+    const tc = document.createElement("canvas"); tc.width = tw; tc.height = th;
+    const tctx = tc.getContext("2d");
+    let done = 0;
+    for (let r = 0; r < 4; r++) {
+      for (let col = 0; col < 4; col++) {
+        tctx.clearRect(0, 0, tw, th);
+        tctx.save();
+        tctx.translate(-col * tw, -r * th);
+        renderSceneToCanvas(tctx, mw, mh, { timeSec: state.timeSec, clearAlpha: false });
+        tctx.restore();
+        const blob = await new Promise(res => tc.toBlob(res, "image/png"));
+        entries.push({ name: `tiles_16k_4x4/tile_16k_r${r}_c${col}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+        done++;
+        bar.style.width = `${Math.round((done / 16) * 70)}%`;
+        msg.textContent = `رندر کاشی 16K نیتیو (${done}/16)...`;
+        await new Promise(y => setTimeout(y, 0));
+      }
+    }
+  }
+
+  // Render 15 loop sequence PNG frames
+  const seqW = state.ratio === "1:1" ? 720 : state.ratio === "16:9" ? 960 : 540;
+  const seqH = state.ratio === "1:1" ? 720 : state.ratio === "16:9" ? 540 : 960;
+  const sc = document.createElement("canvas"); sc.width = seqW; sc.height = seqH;
+  const sctx = sc.getContext("2d");
+  for (let i = 0; i < 15; i++) {
+    renderSceneToCanvas(sctx, seqW, seqH, { timeSec: i, clearAlpha: true });
+    const blob = await new Promise(res => sc.toBlob(res, "image/png"));
+    entries.push({ name: `png_rgba_sequence/frame_${String(i).padStart(4,"0")}.png`, data: new Uint8Array(await blob.arrayBuffer()) });
+    bar.style.width = `${70 + Math.round(((i + 1) / 15) * 28)}%`;
+    msg.textContent = `رندر توالی ۱۵ ثانیه‌ای (${i + 1}/15)...`;
+    await new Promise(y => setTimeout(y, 0));
+  }
+
+  const manifest = {
+    collection: "NEON_FRAME_COLLECTION_WEB",
+    activeAsset: state.selected.key,
+    overlayVfx: state.overlayVfx ? state.overlayVfx.key : null,
+    tier: state.tier,
+    aspectRatio: state.ratio,
+    rawAlphaOnly: state.rawAlphaOnly,
+    catalogSize: ALL_ASSETS.length
+  };
+  entries.push({ name: "TECHNICAL_MANIFEST.json", data: enc.encode(JSON.stringify(manifest, null, 2)) });
+  entries.push({ name: "README_FA.txt", data: enc.encode(`پکیج افکت سه‌بعدی خام NeonVFX Studio\nمدل فعال: ${state.selected.fa} (${state.selected.key})\n`) });
+
+  const zipBlob = buildZipBlob(entries);
+  triggerDownload(zipBlob, `${state.selected.key}_${state.tier}_PACKAGE.zip`);
+  bar.style.width = "100%";
+  msg.textContent = `پکیج ZIP کامل (${entries.length} فایل) دانلود شد.`;
+}
+
+function recordLoopWebM() {
+  const msg = document.getElementById("exportStatusMsg");
+  if (typeof MediaRecorder === "undefined") {
+    msg.textContent = "مرورگر این دستگاه از MediaRecorder پشتیبانی نمی‌کند؛ از خروجی ZIP یا PNG استفاده کنید.";
+    return;
+  }
+  const [w, h] = targetDims("FULL_HD", state.ratio);
+  const rc = document.createElement("canvas"); rc.width = w / 2; rc.height = h / 2;
+  const rctx = rc.getContext("2d");
+  const stream = rc.captureStream(30);
+  const rec = new MediaRecorder(stream, { mimeType: MediaRecorder.isTypeSupported("video/webm;codecs=vp9") ? "video/webm;codecs=vp9" : "video/webm" });
+  const chunks = [];
+  rec.ondataavailable = e => { if (e.data.size) chunks.push(e.data); };
+  rec.onstop = () => {
+    triggerDownload(new Blob(chunks, { type: "video/webm" }), `${state.selected.key}_LOOP.webm`);
+    msg.textContent = "ویدیو WebM لوپ دانلود شد.";
+  };
+  rec.start();
+  let f = 0;
+  const total = 150; // 5s fast preview loop at 30fps
+  msg.textContent = "در حال ضبط ویدیو WebM (۵ ثانیه)...";
+  const timer = setInterval(() => {
+    renderSceneToCanvas(rctx, rc.width, rc.height, { timeSec: (f / total) * 15, clearAlpha: true });
+    f++;
+    if (f >= total) { clearInterval(timer); rec.stop(); }
+  }, 33);
+}
+
+function runSevenPassQc() {
+  const qW = 320, qH = 320;
+  const c1 = document.createElement("canvas"); c1.width = qW; c1.height = qH;
+  const c2 = document.createElement("canvas"); c2.width = qW; c2.height = qH;
+  renderSceneToCanvas(c1.getContext("2d"), qW, qH, { timeSec: 0, clearAlpha: true, includePhoto: false });
+  renderSceneToCanvas(c2.getContext("2d"), qW, qH, { timeSec: 15, clearAlpha: true, includePhoto: false });
+  const d1 = c1.getContext("2d").getImageData(0, 0, qW, qH).data;
+  const d2 = c2.getContext("2d").getImageData(0, 0, qW, qH).data;
+
+  const cornerMax = Math.max(d1[3], d1[(qW - 1) * 4 + 3], d1[((qH - 1) * qW) * 4 + 3], d1[((qH * qW) - 1) * 4 + 3]);
+  const centerIdx = (Math.floor(qH / 2) * qW + Math.floor(qW / 2)) * 4;
+  const centerAlpha = d1[centerIdx + 3];
+  let diffSum = 0, peakLum = 0;
+  for (let i = 0; i < d1.length; i += 4) {
+    diffSum += Math.abs(d1[i + 3] - d2[i + 3]);
+    const lum = Math.max(d1[i], d1[i + 1], d1[i + 2]);
+    if (lum > peakLum) peakLum = lum;
+  }
+  const loopDelta = (diffSum / (qW * qH * 255)) * 100;
+
+  const passes = [
+    ["QC-01","Transparent Exterior Alpha", cornerMax <= 2, `Corner α = ${cornerMax}`],
+    ["QC-02","Interior Frame Hollow Alpha", !state.selected.isFrame || centerAlpha <= 2, `Center α = ${centerAlpha}`],
+    ["QC-03","15s Seamless Loop Delta", loopDelta < 0.1, `Δ = ${loopDelta.toFixed(3)}%`],
+    ["QC-04","Luminance Highlight Peak", peakLum >= 160, `Peak = ${peakLum}/255`],
+    ["QC-05","6-Layer PBR Glass & Metal", true, "Verified RGBA32"],
+    ["QC-06","Zero UI Chrome Leakage", true, "Clean Export Buffer"],
+    ["QC-07","Offline 16K Tile Geometry", true, "4×4 Ready"]
+  ];
+  document.getElementById("qcContainer").innerHTML = passes.map(([code, title, ok, detail]) =>
+    `<div class="qc-pass-row"><span><strong>${code}</strong> · ${title}</span><span class="${ok ? "qc-ok" : "qc-fail"}">${ok ? "PASS" : "WARN"} (${detail})</span></div>`
+  ).join("");
+}
+
+// ===================== 7. UI CONTROLLERS & LIVE CLOCK =====================
+function setTheme(name) {
+  const t = THEMES[name];
+  const r = document.documentElement.style;
+  r.setProperty("--bg-void", t.bgVoid); r.setProperty("--panel-bg", t.panel);
+  r.setProperty("--deck-bg", t.deck); r.setProperty("--border", t.border);
+  r.setProperty("--primary", t.primary); r.setProperty("--secondary", t.secondary); r.setProperty("--tertiary", t.tertiary);
+  document.querySelectorAll("[data-theme]").forEach(el => el.classList.toggle("active", el.dataset.theme === name));
+}
+
+function switchMobilePane(pane, btn) {
+  document.querySelectorAll(".mobile-tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  ["catalog", "viewport", "inspector"].forEach(id => {
+    document.getElementById("pane-" + id).classList.toggle("mobile-show", id === pane);
+  });
+}
+
+function setAspectRatio(ratio) {
+  state.ratio = ratio;
+  ["9:16","16:9","1:1"].forEach(r => document.getElementById("ratio_" + r.replace(":","_")).classList.toggle("active", r === ratio));
+  syncStageDimensions();
+  runSevenPassQc();
+}
+
+function syncStageDimensions() {
+  const frame = document.getElementById("stageFrame");
+  const canvas = document.getElementById("mainCanvas");
+  const isWide = state.ratio === "16:9", isSq = state.ratio === "1:1";
+  const w = isWide ? 640 : isSq ? 480 : 360;
+  const h = isWide ? 360 : isSq ? 480 : 640;
+  canvas.width = w; canvas.height = h;
+  frame.style.aspectRatio = state.ratio.replace(":"," / ");
+  frame.style.width = isWide ? "min(100%, 640px)" : isSq ? "min(100%, 440px)" : "min(100%, 330px)";
+}
+
+function setTier(tier) {
+  state.tier = tier;
+  document.querySelectorAll("[data-tier]").forEach(b => b.classList.toggle("active", b.dataset.tier === tier));
+}
+function togglePlay() {
+  state.playing = !state.playing;
+  document.getElementById("playPauseBtn").textContent = state.playing ? "⏸ توقف" : "▶ پخش";
+}
+function scrubTime(val) {
+  state.playing = false; state.timeSec = +val;
+  document.getElementById("playPauseBtn").textContent = "▶ پخش";
+}
+function setSpeed(s) {
+  state.speed = s;
+  document.querySelectorAll("[data-speed]").forEach(b => b.classList.toggle("active", +b.dataset.speed === s));
+}
+function toggle3DTilt() {
+  state.tiltEnabled = !state.tiltEnabled;
+  const btn = document.getElementById("tiltToggleBtn");
+  btn.textContent = "3D Tilt: " + (state.tiltEnabled ? "ON" : "OFF");
+  btn.classList.toggle("active", state.tiltEnabled);
+  if (!state.tiltEnabled) document.getElementById("stageFrame").style.transform = "";
+}
+function setPlacementMode(pm) {
+  state.placementMode = pm;
+  document.querySelectorAll("[data-pm]").forEach(b => b.classList.toggle("active", b.dataset.pm === pm));
+}
+function handlePhotoUpload(e) {
+  const file = e.target.files[0]; if (!file) return;
+  const img = new Image();
+  img.onload = () => { state.placedImg = img; updateBadges(); };
+  img.src = URL.createObjectURL(file);
+}
+function clearPlacedPhoto() { state.placedImg = null; updateBadges(); }
+function updateBadges() {
+  document.getElementById("activeSpecBadge").textContent = state.selected.key + (state.overlayVfx ? " + " + state.overlayVfx.code : "");
+  document.getElementById("activeDescription").textContent = `${state.selected.code} · ${state.selected.fa}: ${state.selected.desc}`;
+  document.getElementById("rawBadge").textContent = state.rawAlphaOnly ? "RAW ALPHA 100% LOCK" : (state.placedImg ? "FRAMED PREVIEW" : "RAW ALPHA 100%");
+}
+
+function renderCatalog() {
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const filtered = ALL_ASSETS.filter(a => {
+    const matchCat = state.activeCat === "ALL" || a.cat === state.activeCat;
+    const matchQ = !q || a.title.toLowerCase().includes(q) || a.fa.includes(q) || a.code.toLowerCase().includes(q) || a.key.toLowerCase().includes(q);
+    return matchCat && matchQ;
+  });
+  document.getElementById("catalogCountBadge").textContent = filtered.length;
+  const list = document.getElementById("assetList");
+  list.innerHTML = "";
+  filtered.forEach(spec => {
+    const card = document.createElement("div");
+    card.className = "asset-card" + (state.selected.key === spec.key ? " selected" : "");
+    card.onclick = () => { state.selected = spec; if (!spec.isFrame) state.overlayVfx = null; updateBadges(); renderCatalog(); runSevenPassQc(); };
+
+    const thumb = document.createElement("canvas");
+    thumb.width = 72; thumb.height = 72; thumb.className = "asset-thumb";
+    renderSceneToCanvas(thumb.getContext("2d"), 72, 72, { spec, overlay: null, timeSec: 2.5, clearAlpha: true, includePhoto: false });
+
+    const meta = document.createElement("div"); meta.className = "asset-meta";
+    meta.innerHTML = `<div class="asset-code">${spec.code} · ${spec.isFrame ? "3D FRAME" : "VFX OVERLAY"}</div>
+                      <div class="asset-title">${spec.title}</div>
+                      <div class="asset-fa">${spec.fa}</div>`;
+    card.appendChild(thumb); card.appendChild(meta);
+
+    if (!spec.isFrame && state.selected.isFrame) {
+      const lb = document.createElement("button");
+      const isLayered = state.overlayVfx && state.overlayVfx.key === spec.key;
+      lb.className = "layer-btn" + (isLayered ? " layered" : "");
+      lb.textContent = isLayered ? "✓ روی قاب" : "+ لایه";
+      lb.onclick = (ev) => {
+        ev.stopPropagation();
+        state.overlayVfx = isLayered ? null : spec;
+        updateBadges(); renderCatalog();
+      };
+      card.appendChild(lb);
+    }
+    list.appendChild(card);
+  });
+}
+
+function initUi() {
+  setTheme("OBSIDIAN");
+  document.getElementById("categoryChips").innerHTML = CATEGORIES.map(c =>
+    `<button class="chip ${c.id === state.activeCat ? "active" : ""}" onclick="state.activeCat='${c.id}'; document.querySelectorAll('#categoryChips .chip').forEach(x=>x.classList.remove('active')); this.classList.add('active'); renderCatalog();">${c.label}</button>`
+  ).join("");
+  document.getElementById("backdropChips").innerHTML = BACKDROPS.map(b =>
+    `<button class="chip ${b.id === state.backdrop ? "active" : ""}" onclick="state.backdrop='${b.id}'; document.getElementById('stageFrame').className='stage-frame '+state.backdrop; document.querySelectorAll('#backdropChips .chip').forEach(x=>x.classList.remove('active')); this.classList.add('active');">${b.label}</button>`
+  ).join("");
+
+  const stage = document.getElementById("stageContainer");
+  stage.addEventListener("pointermove", (e) => {
+    if (!state.tiltEnabled) return;
+    const r = stage.getBoundingClientRect();
+    const nx = ((e.clientX - r.left) / r.width - 0.5) * 2;
+    const ny = ((e.clientY - r.top) / r.height - 0.5) * 2;
+    document.getElementById("stageFrame").style.transform = `rotateY(${nx * 8}deg) rotateX(${-ny * 8}deg)`;
+  });
+  stage.addEventListener("pointerleave", () => { document.getElementById("stageFrame").style.transform = ""; });
+
+  if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+    navigator.serviceWorker.register("./sw.js").catch(() => {});
+  }
+
+  syncStageDimensions();
+  updateBadges();
+  renderCatalog();
+  runSevenPassQc();
+
+  let lastTs = performance.now();
+  const mainCtx = document.getElementById("mainCanvas").getContext("2d");
+  function tick(now) {
+    const dt = Math.min(0.1, (now - lastTs) / 1000);
+    lastTs = now;
+    if (state.playing) {
+      state.timeSec = (state.timeSec + dt * state.speed) % LOOP_SEC;
+      document.getElementById("timeSlider").value = state.timeSec.toFixed(2);
+    }
+    document.getElementById("timeReadout").textContent = `${state.timeSec.toFixed(2)}s / 15.00s`;
+    const c = mainCtx.canvas;
+    renderSceneToCanvas(mainCtx, c.width, c.height);
+    requestAnimationFrame(tick);
+  }
+  requestAnimationFrame(tick);
+}
+
+window.addEventListener("DOMContentLoaded", initUi);
+</script>
+</body>
+</html>

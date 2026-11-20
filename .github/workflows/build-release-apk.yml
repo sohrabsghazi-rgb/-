@@ -42,24 +42,30 @@ jobs:
       - name: Build Debug APK
         run: gradle assembleDebug --no-daemon
 
-      - name: Prepare Release APK Filename
+      - name: Prepare Release Artifacts (APK + Offline WebApp)
         run: |
           mkdir -p release-artifacts
           cp app/build/outputs/apk/debug/app-debug.apk release-artifacts/NeonVFX_Studio_Full_16K_3D.apk
+          cp public/index.html release-artifacts/NeonVFX_Studio_Offline_WebApp.html
 
-      - name: Upload APK Workflow Artifact
+      - name: Upload Workflow Artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: NeonVFX_Studio_Full_16K_3D_APK
-          path: release-artifacts/NeonVFX_Studio_Full_16K_3D.apk
+          name: NeonVFX_Studio_Full_16K_3D_Bundle
+          path: |
+            release-artifacts/NeonVFX_Studio_Full_16K_3D.apk
+            release-artifacts/NeonVFX_Studio_Offline_WebApp.html
           retention-days: 90
 
       - name: Publish Direct Download GitHub Release
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0-latest
-          name: NeonVFX Studio 3D (FullHD / 4K / 16K) APK
+          name: NeonVFX Studio 3D (APK + Offline WebApp)
           body: |
-            Automated APK build for **NeonVFX Studio** (`com.aistudio.neonvfx.mrxkzt`).
-            Direct download: `NeonVFX_Studio_Full_16K_3D.apk`
-          files: release-artifacts/NeonVFX_Studio_Full_16K_3D.apk
+            Automated build for **NeonVFX Studio** (`com.aistudio.neonvfx.mrxkzt`).
+            - Android APK: `NeonVFX_Studio_Full_16K_3D.apk`
+            - 100% Offline PC & Mobile WebApp: `NeonVFX_Studio_Offline_WebApp.html`
+          files: |
+            release-artifacts/NeonVFX_Studio_Full_16K_3D.apk
+            release-artifacts/NeonVFX_Studio_Offline_WebApp.html

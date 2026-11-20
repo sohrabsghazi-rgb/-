@@ -773,4 +773,48 @@ object ExportAndQcEngine {
             Result.failure(e)
         }
     }
+
+    suspend fun saveOfflineWebAppHtmlToDownloads(context: Context): Result<String> = withContext(Dispatchers.IO) {
+        try {
+            val fileName = "NeonVFX_Studio_Offline_WebApp.html"
+            val htmlBytes = context.assets.open("webapp/index.html").use { it.readBytes() }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val values = ContentValues().apply {
+                    put(MediaStore.Downloads.DISPLAY_NAME, fileName)
+                    put(MediaStore.Downloads.MIME_TYPE, "text/html")
+                    put(MediaStore.Downloads.RELATIVE_PATH, "${Environment.DIRECTORY_DOWNLOADS}/NeonVFX_Studio")
+                    put(MediaStore.Downloads.IS_PENDING, 1)
+                }
+                val resolver = context.contentResolver
+                val uri = resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+                    ?: return@withContext Result.failure(IllegalStateException("Failed to create WebApp HTML in Downloads."))
+                resolver.openOutputStream(uri)?.use { out -> out.write(htmlBytes) }
+                values.clear()
+                values.put(MediaStore.Downloads.IS_PENDING, 0)
+                resolver.update(uri, values, null, null)
+                Result.success("Saved Offline WebApp to Downloads/NeonVFX_Studio/$fileName")
+            } else {
+                val dir = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS) ?: context.filesDir
+                val dst = File(dir, fileName)
+                dst.writeBytes(htmlBytes)
+                Result.success("Saved Offline WebApp to ${dst.absolutePath}")
+            }
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
+
+    suspend fun prepareOfflineWebAppShareUri(context: Context): Result<Uri> = withContext(Dispatchers.IO) {
+        try {
+            val rootDir = File(context.filesDir, "NEON_FRAME_COLLECTION").apply { mkdirs() }
+            val htmlFile = File(rootDir, "NeonVFX_Studio_Offline_WebApp.html")
+            context.assets.open("webapp/index.html").use { input ->
+                FileOutputStream(htmlFile).use { output -> input.copyTo(output) }
+            }
+            val uri = FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", htmlFile)
+            Result.success(uri)
+        } catch (e: Exception) {
+            Result.failure(e)
+        }
+    }
 }
