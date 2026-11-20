@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">NeonVFX Studio</string>
+    <string name="nav_viewport">Viewport</string>
+    <string name="nav_collection">Collection</string>
+    <string name="nav_export_qc">QC &amp; Export</string>
+    <string name="nav_ai_studio">Gemini AI</string>
+    <string name="studio_subtitle">16K Master Spec · 15s Seamless Loop · True Alpha</string>
+</resources>

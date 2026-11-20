@@ -1,0 +1,6 @@
+{
+  "name": "NeonVFX Studio",
+  "description": "3D Neon Frame & VFX procedural studio with 15-second seamless loops, transparent alpha export, and Gemini AI creative tools.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
